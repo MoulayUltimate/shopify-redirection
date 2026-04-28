@@ -284,12 +284,13 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
                     <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '12px' }}>
                       <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.5rem' }}>NEW: UNIFIED DASHBOARD</p>
-                      <ul style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', paddingLeft: '1rem', lineHeight: '1.5' }}>
-                        <li>Go to <strong>dev.shopify.com</strong></li>
-                        <li>Open your <strong>App</strong> → <strong>Configuration</strong></li>
-                        <li>Copy the <strong>Client ID</strong></li>
-                        <li>Click <strong>Manage</strong> to find the <strong>Client Secret</strong> (starts with <code>shpss_</code>)</li>
-                      </ul>
+                      <ol style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
+                        <li>Go to <strong>dev.shopify.com</strong> and click <strong>"Create app"</strong></li>
+                        <li>Name it <em>"AmksaSwitchify"</em> and click <strong>Create</strong></li>
+                        <li>Go to <strong>"Access"</strong> and select: <code>read_orders</code>, <code>read_themes</code>, <code>write_themes</code></li>
+                        <li>Click the <strong>"Release"</strong> button in the top right</li>
+                        <li>Go to <strong>"Settings"</strong> to copy your <strong>Client ID</strong> and <strong>Secret</strong></li>
+                      </ol>
                     </div>
                     
                     <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '12px' }}>
