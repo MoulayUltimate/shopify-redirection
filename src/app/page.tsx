@@ -1,35 +1,28 @@
-import React from 'react';
 import { prisma } from '@/lib/prisma';
 import AdminPanel from '@/components/AdminPanel';
-import { headers } from 'next/headers';
-
-export const dynamic = 'force-dynamic';
+import { auth } from '@/auth';
+import { redirect } from 'next/navigation';
+import Header from '@/components/Header';
 
 export default async function Home() {
+  const session = await auth();
+
+  if (!session) {
+    redirect('/login');
+  }
+
+  // Only fetch stores belonging to the logged-in user
   const stores = await prisma.store.findMany({
-    orderBy: { createdAt: 'asc' }
+    where: { userId: session.user?.id },
+    orderBy: { createdAt: 'asc' },
   });
 
-  // Auto-detect the app's URL so the setup guide shows the correct webhook/script URLs
-  const headerList = await headers();
-  const host = headerList.get('host') || 'localhost:3000';
-  const proto = headerList.get('x-forwarded-proto') || 'http';
-  const appUrl = `${proto}://${host}`;
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
 
   return (
-    <div className="container">
-      <div className="header">
-        <div className="header-left">
-          <h1>🔄 Store Rotator</h1>
-          <p>Revenue-based Shopify traffic distribution</p>
-        </div>
-        <div className="status-pill">
-          <span className="status-dot"></span>
-          Online
-        </div>
-      </div>
-
+    <main className="container">
+      <Header user={session.user} />
       <AdminPanel stores={stores} appUrl={appUrl} />
-    </div>
+    </main>
   );
 }

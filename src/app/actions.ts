@@ -2,10 +2,44 @@
 
 import { prisma } from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
+import { auth, signIn } from '@/auth';
+import bcrypt from 'bcryptjs';
+
+// ─── Auth Actions ───────────────────────────────────────
+
+export async function signup(formData: FormData) {
+  const email = formData.get('email') as string;
+  const password = formData.get('password') as string;
+  const name = formData.get('name') as string;
+
+  if (!email || !password) return { error: 'Email and password are required' };
+
+  try {
+    const existing = await prisma.user.findUnique({ where: { email } });
+    if (existing) return { error: 'Email already exists' };
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    await prisma.user.create({
+      data: { email, password: hashedPassword, name }
+    });
+
+    return { success: true };
+  } catch (e) {
+    return { error: 'Failed to create account' };
+  }
+}
 
 // ─── Store CRUD ─────────────────────────────────────────
 
+async function getUserId() {
+  const session = await auth();
+  return session?.user?.id;
+}
+
 export async function addStore(formData: FormData) {
+  const userId = await getUserId();
+  if (!userId) return { error: 'Not authenticated' };
+
   const name = formData.get('name') as string;
   let domain = formData.get('domain') as string;
   const accessToken = (formData.get('accessToken') as string || '').trim();
@@ -25,6 +59,7 @@ export async function addStore(formData: FormData) {
   try {
     await prisma.store.create({
       data: { 
+        userId,
         name, 
         domain, 
         accessToken: accessToken || null, 
@@ -43,8 +78,11 @@ export async function addStore(formData: FormData) {
 }
 
 export async function deleteStore(id: string) {
+  const userId = await getUserId();
+  if (!userId) return { error: 'Not authenticated' };
+
   try {
-    await prisma.store.delete({ where: { id } });
+    await prisma.store.delete({ where: { id, userId } });
     revalidatePath('/');
     return { success: true };
   } catch (e) {
@@ -53,9 +91,12 @@ export async function deleteStore(id: string) {
 }
 
 export async function toggleStoreStatus(id: string, currentStatus: boolean) {
+  const userId = await getUserId();
+  if (!userId) return { error: 'Not authenticated' };
+
   try {
     await prisma.store.update({
-      where: { id },
+      where: { id, userId },
       data: { isActive: !currentStatus }
     });
     revalidatePath('/');
@@ -66,9 +107,12 @@ export async function toggleStoreStatus(id: string, currentStatus: boolean) {
 }
 
 export async function updateStoreLimit(id: string, newLimit: number) {
+  const userId = await getUserId();
+  if (!userId) return { error: 'Not authenticated' };
+
   try {
     await prisma.store.update({
-      where: { id },
+      where: { id, userId },
       data: { revenueLimit: newLimit }
     });
     revalidatePath('/');
@@ -87,7 +131,6 @@ async function getAccessToken(store: any) {
     throw new Error('No credentials found for this store');
   }
 
-  // Token exchange for Unified Dashboard / Partners App
   const res = await fetch(`https://${store.domain}/admin/oauth/access_token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -100,7 +143,6 @@ async function getAccessToken(store: any) {
 
   if (!res.ok) {
     const errText = await res.text();
-    console.error('Auth response:', errText);
     throw new Error(`Auth failed (${res.status}): ${errText.substring(0, 100)}`);
   }
 
@@ -108,16 +150,16 @@ async function getAccessToken(store: any) {
   return data.access_token;
 }
 
-// ─── Sync Revenue from Shopify Orders API ───────────────
-
 export async function syncRevenue(storeId: string) {
+  const userId = await getUserId();
+  if (!userId) return { error: 'Not authenticated' };
+
   try {
-    const store = await prisma.store.findUnique({ where: { id: storeId } });
+    const store = await prisma.store.findUnique({ where: { id: storeId, userId } });
     if (!store) return { error: 'Store not found' };
 
     const token = await getAccessToken(store);
 
-    // Fetch all orders from the Shopify Admin API
     let totalRevenue = 0;
     let orderCount = 0;
     let nextUrl: string | null = `https://${store.domain}/admin/api/2024-04/orders.json?status=any&financial_status=paid,authorized,partially_paid&limit=250`;
@@ -133,7 +175,6 @@ export async function syncRevenue(storeId: string) {
 
       if (!res.ok) {
         const errText = await res.text();
-        console.error('Shopify API error:', errText);
         return { error: `Shopify API error (${res.status}). Check your scopes.` };
       }
 
@@ -150,7 +191,6 @@ export async function syncRevenue(storeId: string) {
       nextUrl = nextMatch ? nextMatch[1] : null;
     }
 
-    // --- ALSO FETCH PRIMARY DOMAIN ---
     let primaryDomain = store.primaryDomain;
     try {
       const shopRes = await fetch(`https://${store.domain}/admin/api/2024-04/shop.json`, {
@@ -164,50 +204,48 @@ export async function syncRevenue(storeId: string) {
         const shopData = await shopRes.json();
         primaryDomain = shopData.shop?.domain || store.domain;
       }
-    } catch (e) {
-      console.error('Failed to fetch primary domain:', e);
-    }
+    } catch (e) {}
 
     await prisma.store.update({
-      where: { id: storeId },
+      where: { id: storeId, userId },
       data: { currentRevenue: totalRevenue, primaryDomain }
     });
 
     revalidatePath('/');
     return { success: true, revenue: totalRevenue, count: orderCount };
   } catch (e: any) {
-    console.error('Sync error:', e);
     return { error: e.message || 'Failed to sync revenue' };
   }
 }
 
-// ─── Sync All Stores ────────────────────────────────────
-
 export async function syncAllRevenue() {
-  const stores = await prisma.store.findMany();
+  const userId = await getUserId();
+  if (!userId) return [];
+
+  const stores = await prisma.store.findMany({ where: { userId } });
   const results = [];
   for (const store of stores) {
-    if (store.accessToken) {
-      const result = await syncRevenue(store.id);
-      results.push({ store: store.name, ...result });
-    }
+    const result = await syncRevenue(store.id);
+    results.push({ store: store.name, ...result });
   }
   revalidatePath('/');
   return results;
 }
 
-// ─── Install Redirect Script via Shopify API ────────────
+// ─── Install Redirect Script ────────────────────────────
 
 const SCRIPT_MARKER_START = '<!-- STORE-ROTATOR-START -->';
 const SCRIPT_MARKER_END = '<!-- STORE-ROTATOR-END -->';
 
 export async function installScript(storeId: string, appUrl: string) {
+  const userId = await getUserId();
+  if (!userId) return { error: 'Not authenticated' };
+
   try {
-    const store = await prisma.store.findUnique({ where: { id: storeId } });
+    const store = await prisma.store.findUnique({ where: { id: storeId, userId } });
     if (!store) return { error: 'Store not found' };
 
     const token = await getAccessToken(store);
-
     const apiBase = `https://${store.domain}/admin/api/2024-04`;
     const headers = {
       'X-Shopify-Access-Token': token,
@@ -215,26 +253,22 @@ export async function installScript(storeId: string, appUrl: string) {
       'User-Agent': 'Shopify-Store-Rotator/1.0',
     };
 
-    // 1. Get the main published theme
     const themesRes = await fetch(`${apiBase}/themes.json`, { headers });
-    if (!themesRes.ok) return { error: `Cannot access themes (${themesRes.status}). Make sure your app has "read_themes" and "write_themes" access.` };
+    if (!themesRes.ok) return { error: `Cannot access themes` };
 
     const themesData = await themesRes.json();
     const mainTheme = themesData.themes?.find((t: any) => t.role === 'main');
     if (!mainTheme) return { error: 'No main theme found' };
 
-    // 2. Get current theme.liquid
     const assetRes = await fetch(`${apiBase}/themes/${mainTheme.id}/assets.json?asset[key]=layout/theme.liquid`, { headers });
-    if (!assetRes.ok) return { error: `Cannot read theme.liquid (${assetRes.status})` };
+    if (!assetRes.ok) return { error: `Cannot read theme.liquid` };
 
     const assetData = await assetRes.json();
     let themeContent = assetData.asset?.value || '';
 
-    // 3. Remove old script if exists
     const markerRegex = new RegExp(`${SCRIPT_MARKER_START}[\\s\\S]*?${SCRIPT_MARKER_END}`, 'g');
     themeContent = themeContent.replace(markerRegex, '');
 
-    // 4. Build the script snippet
     const snippet = `${SCRIPT_MARKER_START}
 {% if template == 'product' %}
 <script>
@@ -242,7 +276,6 @@ export async function installScript(storeId: string, appUrl: string) {
     .then(function(r){return r.json()})
     .then(function(d){
       const curr = window.location.hostname;
-      // Only redirect if we aren't already on the target domain OR the internal .myshopify domain
       if(d.domain && curr !== d.domain && curr !== d.internalDomain){
         window.location.href='https://'+d.domain+'/products/{{product.handle}}';
       }
@@ -252,10 +285,8 @@ export async function installScript(storeId: string, appUrl: string) {
 {% endif %}
 ${SCRIPT_MARKER_END}`;
 
-    // 5. Inject before </head>
     themeContent = themeContent.replace('</head>', snippet + '\n</head>');
 
-    // 6. Upload updated theme.liquid
     const updateRes = await fetch(`${apiBase}/themes/${mainTheme.id}/assets.json`, {
       method: 'PUT',
       headers,
@@ -264,28 +295,24 @@ ${SCRIPT_MARKER_END}`;
       })
     });
 
-    if (!updateRes.ok) {
-      const errText = await updateRes.text();
-      return { error: `Failed to update theme: ${errText}` };
-    }
+    if (!updateRes.ok) return { error: `Failed to update theme` };
 
     revalidatePath('/');
     return { success: true };
   } catch (e: any) {
-    console.error('Install script error:', e);
-    return { error: e.message || 'Failed to install script' };
+    return { error: 'Failed to install script' };
   }
 }
 
-// ─── Uninstall Redirect Script ──────────────────────────
-
 export async function uninstallScript(storeId: string) {
+  const userId = await getUserId();
+  if (!userId) return { error: 'Not authenticated' };
+
   try {
-    const store = await prisma.store.findUnique({ where: { id: storeId } });
+    const store = await prisma.store.findUnique({ where: { id: storeId, userId } });
     if (!store) return { error: 'Store not found' };
 
     const token = await getAccessToken(store);
-
     const apiBase = `https://${store.domain}/admin/api/2024-04`;
     const headers = {
       'X-Shopify-Access-Token': token,
@@ -316,6 +343,6 @@ export async function uninstallScript(storeId: string) {
     revalidatePath('/');
     return { success: true };
   } catch (e: any) {
-    return { error: e.message || 'Failed to uninstall script' };
+    return { error: 'Failed to uninstall script' };
   }
 }
