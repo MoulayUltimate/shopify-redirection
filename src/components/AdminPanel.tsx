@@ -207,6 +207,7 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                                 className="limit-input"
                                 title="Click to edit limit"
                               />
+                              <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>✏️</span>
                             </div>
                             <div className="revenue-bar">
                               <div

@@ -438,28 +438,32 @@ ol li {
 }
 
 .limit-input {
-  background: transparent;
-  border: 1px solid transparent;
-  color: inherit;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px dashed var(--border);
+  color: var(--accent);
   font-family: inherit;
-  font-size: inherit;
+  font-size: 0.9rem;
   font-weight: 600;
-  width: 70px;
-  padding: 0.1rem 0.2rem;
+  width: 80px;
+  padding: 0.2rem 0.4rem;
   border-radius: 4px;
   transition: all 0.2s;
   cursor: pointer;
+  text-align: center;
 }
 
 .limit-input:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: var(--border);
+  background: rgba(139, 92, 246, 0.1);
+  border-color: var(--accent);
+  border-style: solid;
 }
 
 .limit-input:focus {
   background: var(--bg-card);
   border-color: var(--accent);
+  border-style: solid;
   outline: none;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
   cursor: text;
 }
 
