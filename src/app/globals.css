@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 :root {
+  /* DARK THEME (Default) */
   --bg-primary: #05070a;
   --bg-secondary: #0a0d14;
   --bg-card: rgba(255, 255, 255, 0.03);
@@ -26,10 +27,24 @@
   --shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
+[data-theme='light'] {
+  --bg-primary: #f8fafc;
+  --bg-secondary: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f1f5f9;
+  --border: #e2e8f0;
+  --border-focus: #1273eb;
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #64748b;
+  --shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+}
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 body {

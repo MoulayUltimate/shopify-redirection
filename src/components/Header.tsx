@@ -1,13 +1,31 @@
 'use client';
 
 import { signOut } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 
 export default function Header({ user }: { user: any }) {
+  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem('theme') as 'dark' | 'light';
+    if (savedTheme) {
+      setTheme(savedTheme);
+      document.documentElement.setAttribute('data-theme', savedTheme);
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+    document.documentElement.setAttribute('data-theme', newTheme);
+  };
+
   return (
     <header className="main-header">
       <div className="header-left">
         <div className="logo">
-          <img src="/logo.jpg" alt="AmksaSwitchify" className="logo-img" style={{ height: '48px', borderRadius: '8px' }} />
+          <img src="/logo.jpg" alt="AmksaSwitchify" className="logo-img" style={{ height: '52px', borderRadius: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.15)', border: '2px solid var(--border)' }} />
           <div className="logo-text">
             <h1>AmksaSwitchify</h1>
             <p>Smart Traffic & Revenue Control</p>
@@ -17,6 +35,9 @@ export default function Header({ user }: { user: any }) {
       
       <div className="header-right">
         <div className="user-profile">
+          <button onClick={toggleTheme} className="btn btn-ghost btn-sm" style={{ marginRight: '0.5rem', borderRadius: '50%', width: '36px', height: '36px', padding: 0 }}>
+            {theme === 'dark' ? '☀️' : '🌙'}
+          </button>
           <div className="user-info">
             <span className="user-name">{user?.name || user?.email}</span>
             <span className="user-role">Administrator</span>
