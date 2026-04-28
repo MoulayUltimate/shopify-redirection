@@ -10,6 +10,19 @@ datasource db {
   provider = "sqlite"
 }
 
+model Store {
+  id             String   @id @default(cuid())
+  name           String
+  domain         String   @unique
+  accessToken    String?
+  revenueLimit   Float    @default(500.00)
+  currentRevenue Float    @default(0.00)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+// We'll keep RedirectRule in case you need static overrides
 model RedirectRule {
   id          String   @id @default(cuid())
   sourcePath  String   @unique

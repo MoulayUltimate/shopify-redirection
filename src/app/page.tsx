@@ -3,35 +3,37 @@ import { prisma } from '@/lib/prisma';
 import AdminPanel from '@/components/AdminPanel';
 
 export default async function Home() {
-  const rules = await prisma.redirectRule.findMany({
+  const stores = await prisma.store.findMany({
     orderBy: { createdAt: 'desc' }
   });
+
+  const totalRevenue = stores.reduce((sum, store) => sum + store.currentRevenue, 0);
 
   return (
     <div className="container">
       <div className="hero">
-        <h1>Shopify Redirection Engine</h1>
-        <p>Manage your edge-native redirects and sync them directly to Shopify.</p>
+        <h1>Revenue-Based Store Rotator</h1>
+        <p>Manage your multiple Shopify stores and dynamically route traffic to maximize limits.</p>
       </div>
 
       <div className="dashboard">
         <div className="stats-grid">
           <div className="stat-card">
-            <h3>Active Redirects</h3>
-            <div className="value">{rules.length}</div>
+            <h3>Active Stores</h3>
+            <div className="value">{stores.filter(s => s.isActive).length}</div>
           </div>
           <div className="stat-card">
-            <h3>Traffic Processed</h3>
-            <div className="value">45.2K</div>
+            <h3>Total Revenue Tracked</h3>
+            <div className="value">${totalRevenue.toFixed(2)}</div>
           </div>
           <div className="stat-card">
-            <h3>Avg Latency</h3>
-            <div className="value">12ms</div>
+            <h3>Rotator Status</h3>
+            <div className="value" style={{color: '#34d399'}}>Online</div>
           </div>
         </div>
 
         {/* The interactive client component for CRUD operations */}
-        <AdminPanel rules={rules} />
+        <AdminPanel stores={stores} />
       </div>
     </div>
   );
