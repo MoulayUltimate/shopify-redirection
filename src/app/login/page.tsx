@@ -11,8 +11,6 @@ function LoginForm() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const successMsg = searchParams.get('success');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,14 +25,14 @@ function LoginForm() {
       });
 
       if (res?.error) {
-        setError('Invalid email or password. Please try again.');
+        setError('Invalid email or password');
         setLoading(false);
       } else {
-        router.push('/');
-        router.refresh();
+        // Force a hard redirect to clear state
+        window.location.href = '/';
       }
     } catch (err: any) {
-      setError('Connection failed. Please try again.');
+      setError('Connection failed');
       setLoading(false);
     }
   };
@@ -48,7 +46,6 @@ function LoginForm() {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
-          {successMsg && <div className="success-message" style={{ background: 'var(--green-bg)', color: 'var(--green)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1rem', textAlign: 'center' }}>{successMsg}</div>}
           {error && <div className="error-message">{error}</div>}
           
           <div className="form-group">

@@ -2,48 +2,44 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
-import { authConfig } from "./auth.config";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
-  ...authConfig,
   providers: [
     Credentials({
       async authorize(credentials) {
-        try {
-          if (!credentials?.email || !credentials?.password) return null;
+        if (!credentials?.email || !credentials?.password) return null;
+        
+        const email = (credentials.email as string).toLowerCase().trim();
+        const user = await prisma.user.findUnique({ where: { email } });
 
-          const email = (credentials.email as string).toLowerCase().trim();
+        if (!user || !user.password) return null;
 
-          const user = await prisma.user.findUnique({
-            where: { email },
-          });
+        const isPasswordValid = await bcrypt.compare(
+          credentials.password as string,
+          user.password
+        );
 
-          if (!user) {
-            console.log('Auth: User not found', email);
-            return null;
-          }
+        if (!isPasswordValid) return null;
 
-          const isPasswordValid = await bcrypt.compare(
-            credentials.password as string,
-            user.password
-          );
-
-          if (!isPasswordValid) {
-            console.log('Auth: Invalid password', email);
-            return null;
-          }
-
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          };
-        } catch (e) {
-          console.error('Auth error:', e);
-          return null;
-        }
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+        };
       },
     }),
   ],
+  callbacks: {
+    async session({ session, token }) {
+      if (token.sub && session.user) {
+        session.user.id = token.sub;
+      }
+      return session;
+    },
+  },
+  pages: {
+    signIn: "/login",
+  },
   secret: process.env.NEXTAUTH_SECRET || "fallback-secret-for-dev",
+  trustHost: true,
 });
