@@ -36,7 +36,7 @@ export default function Header({ user }: { user: any }) {
       
       <div className="header-right">
         <div className="user-profile">
-          {user?.email === 'boulayachahmed@outlook.fr' && (
+          {user?.email === 'remoymak@gmail.com' && (
             <Link href="/admin" className="btn btn-primary btn-sm" style={{ marginRight: '0.5rem', background: 'var(--accent-purple)' }}>
               👑 Master View
             </Link>

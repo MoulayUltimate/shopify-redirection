@@ -8,7 +8,7 @@ export default async function AdminMasterPage() {
   const session = await auth();
 
   // ONLY ALLOW YOU (The Owner) TO ACCESS THIS PAGE
-  const ADMIN_EMAIL = 'boulayachahmed@outlook.fr';
+  const ADMIN_EMAIL = 'remoymak@gmail.com';
   
   if (!session || session.user?.email !== ADMIN_EMAIL) {
     redirect('/');
