@@ -75,7 +75,7 @@ async function getAccessToken(store: any) {
   }
 
   // Token exchange for Unified Dashboard / Partners App
-  const res = await fetch(`https://${store.domain}/admin/api/oauth/access_token`, {
+  const res = await fetch(`https://${store.domain}/admin/oauth/access_token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -86,8 +86,9 @@ async function getAccessToken(store: any) {
   });
 
   if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`Auth failed: ${err}`);
+    const errText = await res.text();
+    console.error('Auth response:', errText);
+    throw new Error(`Auth failed (${res.status}): ${errText.substring(0, 100)}`);
   }
 
   const data = await res.json();
