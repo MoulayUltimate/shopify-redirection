@@ -8,14 +8,13 @@ import { revalidatePath } from 'next/cache';
 export async function addStore(formData: FormData) {
   const name = formData.get('name') as string;
   let domain = formData.get('domain') as string;
-  const accessToken = (formData.get('accessToken') as string).trim();
+  const accessToken = (formData.get('accessToken') as string || '').trim();
+  const clientId = (formData.get('clientId') as string || '').trim();
+  const clientSecret = (formData.get('clientSecret') as string || '').trim();
   const revenueLimit = parseFloat(formData.get('revenueLimit') as string);
 
-  if (!name || !domain || !accessToken) return { error: 'All fields are required' };
-  
-  if (!accessToken.startsWith('shpat_')) {
-    return { error: 'Invalid token. Your token must start with "shpat_". Make sure you are creating a "Custom App" inside your Store Settings, NOT the Partners Dashboard.' };
-  }
+  if (!name || !domain) return { error: 'Name and domain are required' };
+  if (!accessToken && (!clientId || !clientSecret)) return { error: 'Provide either an Access Token (shpat_) OR Client ID + Secret' };
 
   domain = domain.toLowerCase().trim().replace('https://', '').replace('http://', '').replace(/\/$/, '');
   
@@ -25,11 +24,20 @@ export async function addStore(formData: FormData) {
 
   try {
     await prisma.store.create({
-      data: { name, domain, accessToken, revenueLimit, currentRevenue: 0 }
+      data: { 
+        name, 
+        domain, 
+        accessToken: accessToken || null, 
+        clientId: clientId || null, 
+        clientSecret: clientSecret || null, 
+        revenueLimit, 
+        currentRevenue: 0 
+      }
     });
     revalidatePath('/');
     return { success: true };
   } catch (e: any) {
+    console.error('Add store error:', e);
     return { error: 'Failed to add store. Domain might already exist.' };
   }
 }
@@ -59,10 +67,41 @@ export async function toggleStoreStatus(id: string, currentStatus: boolean) {
 
 // ─── Sync Revenue from Shopify Orders API ───────────────
 
+async function getAccessToken(store: any) {
+  if (store.accessToken) return store.accessToken;
+  
+  if (!store.clientId || !store.clientSecret) {
+    throw new Error('No credentials found for this store');
+  }
+
+  // Token exchange for Unified Dashboard / Partners App
+  const res = await fetch(`https://${store.domain}/admin/api/oauth/access_token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      client_id: store.clientId,
+      client_secret: store.clientSecret,
+      grant_type: 'client_credentials'
+    })
+  });
+
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`Auth failed: ${err}`);
+  }
+
+  const data = await res.json();
+  return data.access_token;
+}
+
+// ─── Sync Revenue from Shopify Orders API ───────────────
+
 export async function syncRevenue(storeId: string) {
   try {
     const store = await prisma.store.findUnique({ where: { id: storeId } });
-    if (!store || !store.accessToken) return { error: 'Store not found or missing access token' };
+    if (!store) return { error: 'Store not found' };
+
+    const token = await getAccessToken(store);
 
     // Fetch all paid orders from the Shopify Admin API
     let totalRevenue = 0;
@@ -71,7 +110,7 @@ export async function syncRevenue(storeId: string) {
     while (nextUrl) {
       const res: Response = await fetch(nextUrl, {
         headers: {
-          'X-Shopify-Access-Token': store.accessToken,
+          'X-Shopify-Access-Token': token,
           'Content-Type': 'application/json',
           'User-Agent': 'Shopify-Store-Rotator/1.0',
         },

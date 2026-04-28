@@ -121,12 +121,22 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                     <input type="text" name="domain" placeholder="my-store.myshopify.com" required className="input" />
                   </div>
                 </div>
-                <div className="form-row">
-                  <div className="form-group" style={{ flex: 2 }}>
-                    <label>Admin API Access Token</label>
-                    <input type="password" name="accessToken" placeholder="shpat_xxxxxxxxxxxxx" required className="input" />
+                <div className="form-row" style={{ marginTop: '0.5rem' }}>
+                  <div className="form-group" style={{ flex: 1.5 }}>
+                    <label>Access Token (shpat_)</label>
+                    <input type="password" name="accessToken" placeholder="If using legacy custom app" className="input" />
                   </div>
-                  <div className="form-group" style={{ flex: 0.5 }}>
+                  <div className="form-group" style={{ flex: 1 }}>
+                    <label>OR Client ID</label>
+                    <input type="text" name="clientId" placeholder="New Dashboard ID" className="input" />
+                  </div>
+                  <div className="form-group" style={{ flex: 1.5 }}>
+                    <label>Client Secret (shpss_)</label>
+                    <input type="password" name="clientSecret" placeholder="New Dashboard Secret" className="input" />
+                  </div>
+                </div>
+                <div className="form-row">
+                  <div className="form-group" style={{ flex: 1 }}>
                     <label>Limit ($)</label>
                     <input type="number" name="revenueLimit" defaultValue="500" required className="input" />
                   </div>

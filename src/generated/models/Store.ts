@@ -41,6 +41,8 @@ export type StoreMinAggregateOutputType = {
   name: string | null
   domain: string | null
   accessToken: string | null
+  clientId: string | null
+  clientSecret: string | null
   revenueLimit: number | null
   currentRevenue: number | null
   isActive: boolean | null
@@ -53,6 +55,8 @@ export type StoreMaxAggregateOutputType = {
   name: string | null
   domain: string | null
   accessToken: string | null
+  clientId: string | null
+  clientSecret: string | null
   revenueLimit: number | null
   currentRevenue: number | null
   isActive: boolean | null
@@ -65,6 +69,8 @@ export type StoreCountAggregateOutputType = {
   name: number
   domain: number
   accessToken: number
+  clientId: number
+  clientSecret: number
   revenueLimit: number
   currentRevenue: number
   isActive: number
@@ -89,6 +95,8 @@ export type StoreMinAggregateInputType = {
   name?: true
   domain?: true
   accessToken?: true
+  clientId?: true
+  clientSecret?: true
   revenueLimit?: true
   currentRevenue?: true
   isActive?: true
@@ -101,6 +109,8 @@ export type StoreMaxAggregateInputType = {
   name?: true
   domain?: true
   accessToken?: true
+  clientId?: true
+  clientSecret?: true
   revenueLimit?: true
   currentRevenue?: true
   isActive?: true
@@ -113,6 +123,8 @@ export type StoreCountAggregateInputType = {
   name?: true
   domain?: true
   accessToken?: true
+  clientId?: true
+  clientSecret?: true
   revenueLimit?: true
   currentRevenue?: true
   isActive?: true
@@ -212,6 +224,8 @@ export type StoreGroupByOutputType = {
   name: string
   domain: string
   accessToken: string | null
+  clientId: string | null
+  clientSecret: string | null
   revenueLimit: number
   currentRevenue: number
   isActive: boolean
@@ -247,6 +261,8 @@ export type StoreWhereInput = {
   name?: Prisma.StringFilter<"Store"> | string
   domain?: Prisma.StringFilter<"Store"> | string
   accessToken?: Prisma.StringNullableFilter<"Store"> | string | null
+  clientId?: Prisma.StringNullableFilter<"Store"> | string | null
+  clientSecret?: Prisma.StringNullableFilter<"Store"> | string | null
   revenueLimit?: Prisma.FloatFilter<"Store"> | number
   currentRevenue?: Prisma.FloatFilter<"Store"> | number
   isActive?: Prisma.BoolFilter<"Store"> | boolean
@@ -259,6 +275,8 @@ export type StoreOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   domain?: Prisma.SortOrder
   accessToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientId?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientSecret?: Prisma.SortOrderInput | Prisma.SortOrder
   revenueLimit?: Prisma.SortOrder
   currentRevenue?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -274,6 +292,8 @@ export type StoreWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.StoreWhereInput | Prisma.StoreWhereInput[]
   name?: Prisma.StringFilter<"Store"> | string
   accessToken?: Prisma.StringNullableFilter<"Store"> | string | null
+  clientId?: Prisma.StringNullableFilter<"Store"> | string | null
+  clientSecret?: Prisma.StringNullableFilter<"Store"> | string | null
   revenueLimit?: Prisma.FloatFilter<"Store"> | number
   currentRevenue?: Prisma.FloatFilter<"Store"> | number
   isActive?: Prisma.BoolFilter<"Store"> | boolean
@@ -286,6 +306,8 @@ export type StoreOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   domain?: Prisma.SortOrder
   accessToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientId?: Prisma.SortOrderInput | Prisma.SortOrder
+  clientSecret?: Prisma.SortOrderInput | Prisma.SortOrder
   revenueLimit?: Prisma.SortOrder
   currentRevenue?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -306,6 +328,8 @@ export type StoreScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Store"> | string
   domain?: Prisma.StringWithAggregatesFilter<"Store"> | string
   accessToken?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
+  clientId?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
+  clientSecret?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
   revenueLimit?: Prisma.FloatWithAggregatesFilter<"Store"> | number
   currentRevenue?: Prisma.FloatWithAggregatesFilter<"Store"> | number
   isActive?: Prisma.BoolWithAggregatesFilter<"Store"> | boolean
@@ -318,6 +342,8 @@ export type StoreCreateInput = {
   name: string
   domain: string
   accessToken?: string | null
+  clientId?: string | null
+  clientSecret?: string | null
   revenueLimit?: number
   currentRevenue?: number
   isActive?: boolean
@@ -330,6 +356,8 @@ export type StoreUncheckedCreateInput = {
   name: string
   domain: string
   accessToken?: string | null
+  clientId?: string | null
+  clientSecret?: string | null
   revenueLimit?: number
   currentRevenue?: number
   isActive?: boolean
@@ -342,6 +370,8 @@ export type StoreUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   accessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revenueLimit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentRevenue?: Prisma.FloatFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -354,6 +384,8 @@ export type StoreUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   accessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revenueLimit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentRevenue?: Prisma.FloatFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -366,6 +398,8 @@ export type StoreCreateManyInput = {
   name: string
   domain: string
   accessToken?: string | null
+  clientId?: string | null
+  clientSecret?: string | null
   revenueLimit?: number
   currentRevenue?: number
   isActive?: boolean
@@ -378,6 +412,8 @@ export type StoreUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   accessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revenueLimit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentRevenue?: Prisma.FloatFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -390,6 +426,8 @@ export type StoreUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
   accessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clientSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   revenueLimit?: Prisma.FloatFieldUpdateOperationsInput | number
   currentRevenue?: Prisma.FloatFieldUpdateOperationsInput | number
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -402,6 +440,8 @@ export type StoreCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   domain?: Prisma.SortOrder
   accessToken?: Prisma.SortOrder
+  clientId?: Prisma.SortOrder
+  clientSecret?: Prisma.SortOrder
   revenueLimit?: Prisma.SortOrder
   currentRevenue?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -419,6 +459,8 @@ export type StoreMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   domain?: Prisma.SortOrder
   accessToken?: Prisma.SortOrder
+  clientId?: Prisma.SortOrder
+  clientSecret?: Prisma.SortOrder
   revenueLimit?: Prisma.SortOrder
   currentRevenue?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -431,6 +473,8 @@ export type StoreMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   domain?: Prisma.SortOrder
   accessToken?: Prisma.SortOrder
+  clientId?: Prisma.SortOrder
+  clientSecret?: Prisma.SortOrder
   revenueLimit?: Prisma.SortOrder
   currentRevenue?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
@@ -474,6 +518,8 @@ export type StoreSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   name?: boolean
   domain?: boolean
   accessToken?: boolean
+  clientId?: boolean
+  clientSecret?: boolean
   revenueLimit?: boolean
   currentRevenue?: boolean
   isActive?: boolean
@@ -486,6 +532,8 @@ export type StoreSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   name?: boolean
   domain?: boolean
   accessToken?: boolean
+  clientId?: boolean
+  clientSecret?: boolean
   revenueLimit?: boolean
   currentRevenue?: boolean
   isActive?: boolean
@@ -498,6 +546,8 @@ export type StoreSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   name?: boolean
   domain?: boolean
   accessToken?: boolean
+  clientId?: boolean
+  clientSecret?: boolean
   revenueLimit?: boolean
   currentRevenue?: boolean
   isActive?: boolean
@@ -510,6 +560,8 @@ export type StoreSelectScalar = {
   name?: boolean
   domain?: boolean
   accessToken?: boolean
+  clientId?: boolean
+  clientSecret?: boolean
   revenueLimit?: boolean
   currentRevenue?: boolean
   isActive?: boolean
@@ -517,7 +569,7 @@ export type StoreSelectScalar = {
   updatedAt?: boolean
 }
 
-export type StoreOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "domain" | "accessToken" | "revenueLimit" | "currentRevenue" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["store"]>
+export type StoreOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "domain" | "accessToken" | "clientId" | "clientSecret" | "revenueLimit" | "currentRevenue" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["store"]>
 
 export type $StorePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Store"
@@ -527,6 +579,8 @@ export type $StorePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     name: string
     domain: string
     accessToken: string | null
+    clientId: string | null
+    clientSecret: string | null
     revenueLimit: number
     currentRevenue: number
     isActive: boolean
@@ -959,6 +1013,8 @@ export interface StoreFieldRefs {
   readonly name: Prisma.FieldRef<"Store", 'String'>
   readonly domain: Prisma.FieldRef<"Store", 'String'>
   readonly accessToken: Prisma.FieldRef<"Store", 'String'>
+  readonly clientId: Prisma.FieldRef<"Store", 'String'>
+  readonly clientSecret: Prisma.FieldRef<"Store", 'String'>
   readonly revenueLimit: Prisma.FieldRef<"Store", 'Float'>
   readonly currentRevenue: Prisma.FieldRef<"Store", 'Float'>
   readonly isActive: Prisma.FieldRef<"Store", 'Boolean'>
