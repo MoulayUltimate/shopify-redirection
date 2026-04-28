@@ -29,7 +29,7 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
     startTransition(async () => {
       const result = await syncRevenue(storeId);
       if (result.error) setError(result.error);
-      else setMessage(`Revenue synced: $${result.revenue?.toFixed(2)}`);
+      else setMessage(`Revenue synced: $${result.revenue?.toFixed(2)} (${result.count} orders found)`);
       setTimeout(() => { setMessage(null); setError(null); }, 4000);
     });
   };

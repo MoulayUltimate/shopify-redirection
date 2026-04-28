@@ -104,9 +104,10 @@ export async function syncRevenue(storeId: string) {
 
     const token = await getAccessToken(store);
 
-    // Fetch all paid orders from the Shopify Admin API
+    // Fetch all orders from the Shopify Admin API
     let totalRevenue = 0;
-    let nextUrl: string | null = `https://${store.domain}/admin/api/2024-04/orders.json?status=any&financial_status=paid&limit=250`;
+    let orderCount = 0;
+    let nextUrl: string | null = `https://${store.domain}/admin/api/2024-04/orders.json?status=any&financial_status=paid,authorized,partially_paid&limit=250`;
 
     while (nextUrl) {
       const res: Response = await fetch(nextUrl, {
@@ -120,15 +121,17 @@ export async function syncRevenue(storeId: string) {
       if (!res.ok) {
         const errText = await res.text();
         console.error('Shopify API error:', errText);
-        return { error: `Shopify API error (${res.status}). Check your access token.` };
+        return { error: `Shopify API error (${res.status}). Check your scopes.` };
       }
 
       const data = await res.json();
-      for (const order of data.orders || []) {
+      const orders = data.orders || [];
+      orderCount += orders.length;
+
+      for (const order of orders) {
         totalRevenue += parseFloat(order.total_price || '0');
       }
 
-      // Handle pagination
       const linkHeader = res.headers.get('link');
       const nextMatch = linkHeader?.match(/<([^>]+)>;\s*rel="next"/);
       nextUrl = nextMatch ? nextMatch[1] : null;
@@ -140,7 +143,7 @@ export async function syncRevenue(storeId: string) {
     });
 
     revalidatePath('/');
-    return { success: true, revenue: totalRevenue };
+    return { success: true, revenue: totalRevenue, count: orderCount };
   } catch (e: any) {
     console.error('Sync error:', e);
     return { error: e.message || 'Failed to sync revenue' };
