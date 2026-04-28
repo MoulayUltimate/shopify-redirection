@@ -228,15 +228,27 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                         </td>
                         <td>
                           <div className="actions-cell">
-                            <button onClick={() => handleSync(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Sync revenue and domains from Shopify">
-                              🔄 <span className="btn-text">Sync</span>
-                            </button>
-                            <button onClick={() => handleInstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Auto-insert the redirect script into your Shopify theme">
-                              📥 <span className="btn-text">Install</span>
-                            </button>
-                            <button onClick={() => handleUninstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Remove the redirect script from your Shopify theme">
-                              📤 <span className="btn-text">Remove</span>
-                            </button>
+                            {store.clientId && !store.accessToken ? (
+                              <a 
+                                href={`/api/shopify/auth?shop=${store.domain}&clientId=${store.clientId}&storeId=${store.id}`}
+                                className="btn btn-primary btn-sm"
+                                style={{ background: 'var(--yellow)', color: 'black' }}
+                              >
+                                🔗 Connect to Shopify
+                              </a>
+                            ) : (
+                              <>
+                                <button onClick={() => handleSync(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Sync revenue and domains from Shopify">
+                                  🔄 <span className="btn-text">Sync</span>
+                                </button>
+                                <button onClick={() => handleInstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Auto-insert the redirect script into your Shopify theme">
+                                  📥 <span className="btn-text">Install</span>
+                                </button>
+                                <button onClick={() => handleUninstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Remove the redirect script from your Shopify theme">
+                                  📤 <span className="btn-text">Remove</span>
+                                </button>
+                              </>
+                            )}
                             <button
                               onClick={() => startTransition(() => { toggleStoreStatus(store.id, store.isActive); })}
                               className="btn btn-ghost btn-sm"

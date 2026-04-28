@@ -4,8 +4,10 @@ import { auth } from '@/auth';
 import { redirect } from 'next/navigation';
 import Header from '@/components/Header';
 
-export default async function Home() {
+export default async function Home({ searchParams }: { searchParams: Promise<{ success?: string }> }) {
   const session = await auth();
+  const params = await searchParams;
+  const successMsg = params.success;
 
   if (!session) {
     redirect('/login');
@@ -22,6 +24,7 @@ export default async function Home() {
   return (
     <main className="container">
       <Header user={session.user} />
+      {successMsg && <div className="info-box" style={{ marginBottom: '1rem' }}>🎉 {successMsg}</div>}
       <AdminPanel stores={stores} appUrl={appUrl} />
     </main>
   );
