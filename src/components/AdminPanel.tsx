@@ -249,10 +249,20 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                 <div className="step-number">1</div>
                 <div className="step-content">
                   <h3>Create a Custom App in Shopify</h3>
-                  <p style={{ color: 'var(--red)', fontWeight: 600 }}>⚠️ Do NOT use the Shopify Partners Dashboard. You must use your Store Settings.</p>
-                  <p>For <strong>each store</strong>, go to this specific link:</p>
-                  <div className="info-box" style={{ marginBottom: '1rem', fontFamily: 'monospace' }}>
-                    https://[your-store].myshopify.com/admin/settings/apps/development
+                  <div style={{ background: 'rgba(248, 113, 113, 0.1)', border: '1px solid var(--red)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+                    <p style={{ color: 'var(--red)', fontWeight: 700, marginBottom: '0.5rem' }}>❌ STOP! DO NOT USE THE PARTNERS DASHBOARD</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      If your secret starts with <code>shpss_</code>, you are in the <strong>wrong place</strong>. 
+                      Partners secrets will not work.
+                    </p>
+                  </div>
+                  
+                  <div style={{ background: 'rgba(52, 211, 153, 0.1)', border: '1px solid var(--green)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+                    <p style={{ color: 'var(--green)', fontWeight: 700, marginBottom: '0.5rem' }}>✅ USE YOUR STORE SETTINGS</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      Go here: <strong>Store Admin → Settings → Apps → Develop Apps</strong>. 
+                      You must click <strong>"Install App"</strong> to see the token starting with <code>shpat_</code>.
+                    </p>
                   </div>
                   <ol style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 2, paddingLeft: '1.2rem' }}>
                     <li>Click <strong>"Create an app"</strong>, name it <em>"Rotator"</em></li>
