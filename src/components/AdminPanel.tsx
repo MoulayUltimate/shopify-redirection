@@ -1,44 +1,80 @@
 'use client';
 
 import React, { useRef, useState, useTransition } from 'react';
-import { addStore, deleteStore, toggleStoreStatus } from '@/app/actions';
+import { addStore, deleteStore, toggleStoreStatus, syncRevenue, syncAllRevenue, installScript, uninstallScript } from '@/app/actions';
 
 export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: string }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'stores' | 'setup'>('stores');
 
   const handleSubmit = async (formData: FormData) => {
     setError(null);
+    setMessage(null);
     const result = await addStore(formData);
     if (result.error) {
       setError(result.error);
     } else {
       formRef.current?.reset();
+      setMessage('Store added!');
+      setTimeout(() => setMessage(null), 3000);
     }
+  };
+
+  const handleSync = (storeId: string) => {
+    setMessage(null);
+    setError(null);
+    startTransition(async () => {
+      const result = await syncRevenue(storeId);
+      if (result.error) setError(result.error);
+      else setMessage(`Revenue synced: $${result.revenue?.toFixed(2)}`);
+      setTimeout(() => { setMessage(null); setError(null); }, 4000);
+    });
+  };
+
+  const handleSyncAll = () => {
+    setMessage(null);
+    setError(null);
+    startTransition(async () => {
+      await syncAllRevenue();
+      setMessage('All stores synced!');
+      setTimeout(() => setMessage(null), 3000);
+    });
+  };
+
+  const handleInstallScript = (storeId: string) => {
+    setMessage(null);
+    setError(null);
+    startTransition(async () => {
+      const result = await installScript(storeId, appUrl);
+      if (result.error) setError(result.error);
+      else setMessage('Redirect script installed!');
+      setTimeout(() => { setMessage(null); setError(null); }, 4000);
+    });
+  };
+
+  const handleUninstallScript = (storeId: string) => {
+    setMessage(null);
+    setError(null);
+    startTransition(async () => {
+      const result = await uninstallScript(storeId);
+      if (result.error) setError(result.error);
+      else setMessage('Script removed from theme');
+      setTimeout(() => { setMessage(null); setError(null); }, 4000);
+    });
   };
 
   const totalRevenue = stores.reduce((sum: number, s: any) => sum + s.currentRevenue, 0);
   const activeCount = stores.filter((s: any) => s.isActive && s.currentRevenue < s.revenueLimit).length;
 
-  const scriptCode = `{% if template == 'product' %}
-<script>
-  fetch('${appUrl}/api/active-store')
-    .then(r => r.json())
-    .then(d => {
-      if (d.domain && d.domain !== window.location.hostname) {
-        window.location.href = 'https://' + d.domain + '/products/{{ product.handle }}';
-      }
-    })
-    .catch(e => console.error('Rotator:', e));
-</script>
-{% endif %}`;
-
-  const webhookUrl = `${appUrl}/api/webhooks/orders`;
-
   return (
     <>
+      {/* Toast messages */}
+      {message && <div className="info-box" style={{ marginBottom: '1rem' }}>✅ {message}</div>}
+      {error && <div className="error-msg" style={{ marginBottom: '1rem' }}>{error}</div>}
+
       {/* Stats */}
       <div className="stats-row">
         <div className="stat-card">
@@ -74,24 +110,33 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
               <h2>➕ Add Store</h2>
             </div>
             <div className="section-body">
-              <form ref={formRef} action={handleSubmit} className="add-store-form">
-                <div className="form-group">
-                  <label>Store Name</label>
-                  <input type="text" name="name" placeholder="Store A" required className="input" />
+              <form ref={formRef} action={handleSubmit} className="add-store-form-v2">
+                <div className="form-row">
+                  <div className="form-group">
+                    <label>Store Name</label>
+                    <input type="text" name="name" placeholder="Store A" required className="input" />
+                  </div>
+                  <div className="form-group">
+                    <label>Shopify Domain</label>
+                    <input type="text" name="domain" placeholder="my-store.myshopify.com" required className="input" />
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label>Shopify Domain</label>
-                  <input type="text" name="domain" placeholder="my-store.myshopify.com" required className="input" />
+                <div className="form-row">
+                  <div className="form-group" style={{ flex: 2 }}>
+                    <label>Admin API Access Token</label>
+                    <input type="password" name="accessToken" placeholder="shpat_xxxxxxxxxxxxx" required className="input" />
+                  </div>
+                  <div className="form-group" style={{ flex: 0.5 }}>
+                    <label>Limit ($)</label>
+                    <input type="number" name="revenueLimit" defaultValue="500" required className="input" />
+                  </div>
+                  <div className="form-group" style={{ flex: 0, alignSelf: 'flex-end' }}>
+                    <button type="submit" className="btn btn-primary" disabled={isPending}>
+                      {isPending ? '...' : 'Add Store'}
+                    </button>
+                  </div>
                 </div>
-                <div className="form-group">
-                  <label>Limit ($)</label>
-                  <input type="number" name="revenueLimit" placeholder="500" defaultValue="500" required className="input" />
-                </div>
-                <button type="submit" className="btn btn-primary" disabled={isPending}>
-                  {isPending ? '...' : 'Add'}
-                </button>
               </form>
-              {error && <p className="error-msg">{error}</p>}
             </div>
           </div>
 
@@ -99,7 +144,11 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
           <div className="section">
             <div className="section-header">
               <h2>🏪 Your Stores</h2>
-              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{stores.length} total</span>
+              {stores.length > 0 && (
+                <button className="btn btn-ghost btn-sm" onClick={handleSyncAll} disabled={isPending}>
+                  {isPending ? 'Syncing...' : '🔄 Sync All Revenue'}
+                </button>
+              )}
             </div>
             {stores.length === 0 ? (
               <div className="empty-state">
@@ -151,19 +200,28 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                         </td>
                         <td>
                           <div className="actions-cell">
+                            <button onClick={() => handleSync(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Sync revenue from Shopify">
+                              🔄
+                            </button>
+                            <button onClick={() => handleInstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Install redirect script">
+                              📥
+                            </button>
+                            <button onClick={() => handleUninstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Remove redirect script">
+                              📤
+                            </button>
                             <button
                               onClick={() => startTransition(() => { toggleStoreStatus(store.id, store.isActive); })}
                               className="btn btn-ghost btn-sm"
                               disabled={isPending}
                             >
-                              {store.isActive ? 'Pause' : 'Resume'}
+                              {store.isActive ? '⏸' : '▶️'}
                             </button>
                             <button
                               onClick={() => startTransition(() => { deleteStore(store.id); })}
                               className="btn btn-danger btn-sm"
                               disabled={isPending}
                             >
-                              Delete
+                              🗑
                             </button>
                           </div>
                         </td>
@@ -188,39 +246,39 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
 
               {/* Step 1 */}
               <div className="step">
-                <div className={`step-number ${stores.length > 0 ? 'done' : ''}`}>1</div>
+                <div className="step-number">1</div>
                 <div className="step-content">
-                  <h3>Add Your Stores Above</h3>
-                  <p>
-                    Go to the <strong>Stores</strong> tab and add each Shopify store you want in the rotation.
-                    Enter the store name, its <code>.myshopify.com</code> domain, and the revenue limit (e.g. $500).
-                  </p>
-                  {stores.length > 0 ? (
-                    <div className="info-box">✅ Done! You have {stores.length} store(s) configured.</div>
-                  ) : (
-                    <div className="warning-box">⚠️ You haven't added any stores yet. Go to the Stores tab first.</div>
-                  )}
+                  <h3>Create a Custom App in Shopify</h3>
+                  <p>For <strong>each store</strong> you want to add:</p>
+                  <ol style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 2, paddingLeft: '1.2rem' }}>
+                    <li>Go to <strong>Settings → Apps and sales channels → Develop apps</strong></li>
+                    <li>Click <strong>"Create an app"</strong>, name it <em>"Store Rotator"</em></li>
+                    <li>Go to <strong>Configuration</strong> tab and add these scopes:
+                      <ul style={{ marginTop: '0.25rem' }}>
+                        <li><code>read_orders</code> — to track revenue</li>
+                        <li><code>read_themes</code> + <code>write_themes</code> — to auto-install the redirect script</li>
+                      </ul>
+                    </li>
+                    <li>Click <strong>Install app</strong></li>
+                    <li>Go to <strong>API credentials</strong> and copy the <strong>Admin API access token</strong></li>
+                  </ol>
                 </div>
               </div>
 
               {/* Step 2 */}
               <div className="step">
-                <div className="step-number">2</div>
+                <div className={`step-number ${stores.length > 0 ? 'done' : ''}`}>2</div>
                 <div className="step-content">
-                  <h3>Add the Redirect Script to Your Shopify Theme</h3>
+                  <h3>Add the Store in the Stores Tab</h3>
                   <p>
-                    In <strong>each store</strong> that receives ad traffic, go to:<br />
-                    <strong>Online Store → Themes → Edit Code → theme.liquid</strong><br />
-                    Paste this script right before the closing <code>&lt;/head&gt;</code> tag:
+                    Go to the <strong>⚡ Stores</strong> tab above and fill in the store name, its
+                    <code>.myshopify.com</code> domain, the access token you just copied, and the revenue limit.
                   </p>
-                  <div className="code-block">
-                    <CopyButton text={scriptCode} />
-                    {scriptCode}
-                  </div>
-                  <br />
-                  <div className="info-box">
-                    💡 This script checks which store is under its revenue limit and redirects the customer to the right one — keeping the same product page.
-                  </div>
+                  {stores.length > 0 ? (
+                    <div className="info-box">✅ You have {stores.length} store(s) configured.</div>
+                  ) : (
+                    <div className="warning-box">⚠️ No stores added yet.</div>
+                  )}
                 </div>
               </div>
 
@@ -228,26 +286,17 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
               <div className="step">
                 <div className="step-number">3</div>
                 <div className="step-content">
-                  <h3>Set Up Revenue Tracking (Webhooks)</h3>
-                  <p>
-                    For <strong>each store</strong>, go to:<br />
-                    <strong>Settings → Notifications → Webhooks → Create webhook</strong>
-                  </p>
-                  <table className="store-table" style={{ marginBottom: '1rem' }}>
+                  <h3>Click the Action Buttons</h3>
+                  <p>In the Stores tab, each store has icon buttons:</p>
+                  <table className="store-table" style={{ marginBottom: '0.75rem' }}>
                     <tbody>
-                      <tr><td style={{ fontWeight: 600, width: '120px' }}>Event</td><td>Order creation</td></tr>
-                      <tr><td style={{ fontWeight: 600 }}>Format</td><td>JSON</td></tr>
-                      <tr><td style={{ fontWeight: 600 }}>URL</td><td style={{ fontFamily: 'monospace', color: 'var(--accent)' }}>{webhookUrl}</td></tr>
+                      <tr><td style={{ fontSize: '1.1rem', width: '40px' }}>🔄</td><td><strong>Sync Revenue</strong> — Reads all paid orders from Shopify and updates the revenue total</td></tr>
+                      <tr><td style={{ fontSize: '1.1rem' }}>📥</td><td><strong>Install Script</strong> — Automatically injects the redirect code into the store's theme (no manual editing!)</td></tr>
+                      <tr><td style={{ fontSize: '1.1rem' }}>📤</td><td><strong>Uninstall Script</strong> — Removes the redirect code from the theme</td></tr>
+                      <tr><td style={{ fontSize: '1.1rem' }}>⏸</td><td><strong>Pause/Resume</strong> — Temporarily stop or resume traffic to a store</td></tr>
+                      <tr><td style={{ fontSize: '1.1rem' }}>🗑</td><td><strong>Delete</strong> — Remove a store from the rotator</td></tr>
                     </tbody>
                   </table>
-                  <div className="code-block">
-                    <CopyButton text={webhookUrl} />
-                    {webhookUrl}
-                  </div>
-                  <br />
-                  <div className="info-box">
-                    💡 Every time an order is placed, Shopify sends the order total to this app, which updates the store's revenue automatically.
-                  </div>
                 </div>
               </div>
 
@@ -257,8 +306,9 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                 <div className="step-content">
                   <h3>You're Done! 🎉</h3>
                   <p>
-                    Your stores will now automatically rotate traffic. When Store A hits its revenue limit,
-                    all new visitors will be redirected to Store B (and so on). Monitor everything from the <strong>Stores</strong> tab.
+                    Once you've added your stores, synced their revenue, and installed the script —
+                    everything is automatic. When a store hits its limit, traffic redirects to the next
+                    available store. Come back here anytime to monitor or adjust.
                   </p>
                 </div>
               </div>
@@ -268,21 +318,5 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
         </div>
       )}
     </>
-  );
-}
-
-function CopyButton({ text }: { text: string }) {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <button className="copy-btn" onClick={handleCopy} type="button">
-      {copied ? '✓ Copied' : 'Copy'}
-    </button>
   );
 }
