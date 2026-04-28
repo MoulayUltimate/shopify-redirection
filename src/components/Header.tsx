@@ -2,6 +2,7 @@
 
 import { signOut } from 'next-auth/react';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function Header({ user }: { user: any }) {
   const [theme, setTheme] = useState<'dark' | 'light'>('dark');
@@ -35,6 +36,11 @@ export default function Header({ user }: { user: any }) {
       
       <div className="header-right">
         <div className="user-profile">
+          {user?.email === 'boulayachahmed@outlook.fr' && (
+            <Link href="/admin" className="btn btn-primary btn-sm" style={{ marginRight: '0.5rem', background: 'var(--accent-purple)' }}>
+              👑 Master View
+            </Link>
+          )}
           <button onClick={toggleTheme} className="btn btn-ghost btn-sm" style={{ marginRight: '0.5rem', borderRadius: '50%', width: '36px', height: '36px', padding: 0 }}>
             {theme === 'dark' ? '☀️' : '🌙'}
           </button>
