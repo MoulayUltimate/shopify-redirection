@@ -191,11 +191,13 @@ const SCRIPT_MARKER_END = '<!-- STORE-ROTATOR-END -->';
 export async function installScript(storeId: string, appUrl: string) {
   try {
     const store = await prisma.store.findUnique({ where: { id: storeId } });
-    if (!store || !store.accessToken) return { error: 'Store not found or missing access token' };
+    if (!store) return { error: 'Store not found' };
+
+    const token = await getAccessToken(store);
 
     const apiBase = `https://${store.domain}/admin/api/2024-04`;
     const headers = {
-      'X-Shopify-Access-Token': store.accessToken,
+      'X-Shopify-Access-Token': token,
       'Content-Type': 'application/json',
       'User-Agent': 'Shopify-Store-Rotator/1.0',
     };
@@ -267,12 +269,15 @@ ${SCRIPT_MARKER_END}`;
 export async function uninstallScript(storeId: string) {
   try {
     const store = await prisma.store.findUnique({ where: { id: storeId } });
-    if (!store || !store.accessToken) return { error: 'Store not found or missing access token' };
+    if (!store) return { error: 'Store not found' };
+
+    const token = await getAccessToken(store);
 
     const apiBase = `https://${store.domain}/admin/api/2024-04`;
     const headers = {
-      'X-Shopify-Access-Token': store.accessToken,
+      'X-Shopify-Access-Token': token,
       'Content-Type': 'application/json',
+      'User-Agent': 'Shopify-Store-Rotator/1.0',
     };
 
     const themesRes = await fetch(`${apiBase}/themes.json`, { headers });
