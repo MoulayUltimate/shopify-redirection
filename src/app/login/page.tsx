@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
@@ -11,24 +11,35 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const successMsg = searchParams.get('success');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    const res = await signIn('credentials', {
-      email,
-      password,
-      redirect: false,
-    });
+    try {
+      const res = await signIn('credentials', {
+        email: email.toLowerCase().trim(),
+        password,
+        redirect: false,
+      });
 
-    if (res?.error) {
-      setError('Invalid email or password');
+      if (res?.error) {
+        if (res.error === 'CredentialsSignin') {
+          setError('Invalid email or password. Please try again.');
+        } else {
+          setError(res.error || 'An unexpected error occurred.');
+        }
+        setLoading(false);
+      } else {
+        router.push('/');
+        router.refresh();
+      }
+    } catch (err: any) {
+      setError('Connection failed. Please check your internet or try again later.');
       setLoading(false);
-    } else {
-      router.push('/');
-      router.refresh();
     }
   };
 
@@ -41,6 +52,7 @@ export default function LoginPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
+          {successMsg && <div className="success-message" style={{ background: 'var(--green-bg)', color: 'var(--green)', padding: '0.75rem', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1rem', textAlign: 'center' }}>{successMsg}</div>}
           {error && <div className="error-message">{error}</div>}
           
           <div className="form-group">
@@ -68,7 +80,7 @@ export default function LoginPage() {
           </div>
 
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
-            {loading ? 'Logging in...' : 'Login'}
+            {loading ? 'Verifying...' : 'Login'}
           </button>
         </form>
 

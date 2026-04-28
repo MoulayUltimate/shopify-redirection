@@ -9,26 +9,39 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
+        try {
+          if (!credentials?.email || !credentials?.password) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
-        });
+          const email = (credentials.email as string).toLowerCase().trim();
 
-        if (!user) return null;
+          const user = await prisma.user.findUnique({
+            where: { email },
+          });
 
-        const isPasswordValid = await bcrypt.compare(
-          credentials.password as string,
-          user.password
-        );
+          if (!user) {
+            console.log('Auth: User not found', email);
+            return null;
+          }
 
-        if (!isPasswordValid) return null;
+          const isPasswordValid = await bcrypt.compare(
+            credentials.password as string,
+            user.password
+          );
 
-        return {
-          id: user.id,
-          email: user.email,
-          name: user.name,
-        };
+          if (!isPasswordValid) {
+            console.log('Auth: Invalid password', email);
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+          };
+        } catch (e) {
+          console.error('Auth error:', e);
+          return null;
+        }
       },
     }),
   ],

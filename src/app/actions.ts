@@ -8,7 +8,7 @@ import bcrypt from 'bcryptjs';
 // ─── Auth Actions ───────────────────────────────────────
 
 export async function signup(formData: FormData) {
-  const email = formData.get('email') as string;
+  const email = (formData.get('email') as string || '').toLowerCase().trim();
   const password = formData.get('password') as string;
   const name = formData.get('name') as string;
 
