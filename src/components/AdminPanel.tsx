@@ -260,7 +260,7 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                       </ul>
                     </li>
                     <li>Click <strong>Install app</strong></li>
-                    <li>Go to <strong>API credentials</strong> and copy the <strong>Admin API access token</strong></li>
+                    <li>Go to <strong>API credentials</strong> and copy the <strong>Admin API access token</strong> (starts with <code>shpat_</code>)</li>
                   </ol>
                 </div>
               </div>

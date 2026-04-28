@@ -8,12 +8,12 @@ import { revalidatePath } from 'next/cache';
 export async function addStore(formData: FormData) {
   const name = formData.get('name') as string;
   let domain = formData.get('domain') as string;
-  const accessToken = formData.get('accessToken') as string;
+  const accessToken = (formData.get('accessToken') as string).trim();
   const revenueLimit = parseFloat(formData.get('revenueLimit') as string);
 
   if (!name || !domain || !accessToken) return { error: 'All fields are required' };
 
-  domain = domain.replace('https://', '').replace('http://', '').replace(/\/$/, '');
+  domain = domain.toLowerCase().trim().replace('https://', '').replace('http://', '').replace(/\/$/, '');
 
   try {
     await prisma.store.create({
@@ -58,7 +58,7 @@ export async function syncRevenue(storeId: string) {
 
     // Fetch all paid orders from the Shopify Admin API
     let totalRevenue = 0;
-    let nextUrl: string | null = `https://${store.domain}/admin/api/2024-01/orders.json?status=any&financial_status=paid&limit=250`;
+    let nextUrl: string | null = `https://${store.domain}/admin/api/2024-04/orders.json?status=any&financial_status=paid&limit=250`;
 
     while (nextUrl) {
       const res: Response = await fetch(nextUrl, {
@@ -123,7 +123,7 @@ export async function installScript(storeId: string, appUrl: string) {
     const store = await prisma.store.findUnique({ where: { id: storeId } });
     if (!store || !store.accessToken) return { error: 'Store not found or missing access token' };
 
-    const apiBase = `https://${store.domain}/admin/api/2024-01`;
+    const apiBase = `https://${store.domain}/admin/api/2024-04`;
     const headers = {
       'X-Shopify-Access-Token': store.accessToken,
       'Content-Type': 'application/json',
@@ -196,7 +196,7 @@ export async function uninstallScript(storeId: string) {
     const store = await prisma.store.findUnique({ where: { id: storeId } });
     if (!store || !store.accessToken) return { error: 'Store not found or missing access token' };
 
-    const apiBase = `https://${store.domain}/admin/api/2024-01`;
+    const apiBase = `https://${store.domain}/admin/api/2024-04`;
     const headers = {
       'X-Shopify-Access-Token': store.accessToken,
       'Content-Type': 'application/json',
