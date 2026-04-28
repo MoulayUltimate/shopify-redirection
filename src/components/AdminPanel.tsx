@@ -210,28 +210,30 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                         </td>
                         <td>
                           <div className="actions-cell">
-                            <button onClick={() => handleSync(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Sync revenue from Shopify">
-                              🔄
+                            <button onClick={() => handleSync(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Sync revenue and domains from Shopify">
+                              🔄 <span className="btn-text">Sync</span>
                             </button>
-                            <button onClick={() => handleInstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Install redirect script">
-                              📥
+                            <button onClick={() => handleInstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Auto-insert the redirect script into your Shopify theme">
+                              📥 <span className="btn-text">Install</span>
                             </button>
-                            <button onClick={() => handleUninstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Remove redirect script">
-                              📤
+                            <button onClick={() => handleUninstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Remove the redirect script from your Shopify theme">
+                              📤 <span className="btn-text">Remove</span>
                             </button>
                             <button
                               onClick={() => startTransition(() => { toggleStoreStatus(store.id, store.isActive); })}
                               className="btn btn-ghost btn-sm"
                               disabled={isPending}
+                              title={store.isActive ? "Pause traffic to this store" : "Resume traffic to this store"}
                             >
-                              {store.isActive ? '⏸' : '▶️'}
+                              {store.isActive ? '⏸' : '▶️'} <span className="btn-text">{store.isActive ? 'Pause' : 'Resume'}</span>
                             </button>
                             <button
                               onClick={() => startTransition(() => { deleteStore(store.id); })}
                               className="btn btn-danger btn-sm"
                               disabled={isPending}
+                              title="Delete this store from the rotator"
                             >
-                              🗑
+                              🗑 <span className="btn-text">Delete</span>
                             </button>
                           </div>
                         </td>
