@@ -1,42 +1,35 @@
 import React from 'react';
 import { prisma } from '@/lib/prisma';
 import AdminPanel from '@/components/AdminPanel';
+import { headers } from 'next/headers';
 
 export const dynamic = 'force-dynamic';
 
 export default async function Home() {
   const stores = await prisma.store.findMany({
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'asc' }
   });
 
-  const totalRevenue = stores.reduce((sum, store) => sum + store.currentRevenue, 0);
+  // Auto-detect the app's URL so the setup guide shows the correct webhook/script URLs
+  const headerList = await headers();
+  const host = headerList.get('host') || 'localhost:3000';
+  const proto = headerList.get('x-forwarded-proto') || 'http';
+  const appUrl = `${proto}://${host}`;
 
   return (
     <div className="container">
-      <div className="hero">
-        <h1>Revenue-Based Store Rotator</h1>
-        <p>Manage your multiple Shopify stores and dynamically route traffic to maximize limits.</p>
-      </div>
-
-      <div className="dashboard">
-        <div className="stats-grid">
-          <div className="stat-card">
-            <h3>Active Stores</h3>
-            <div className="value">{stores.filter(s => s.isActive).length}</div>
-          </div>
-          <div className="stat-card">
-            <h3>Total Revenue Tracked</h3>
-            <div className="value">${totalRevenue.toFixed(2)}</div>
-          </div>
-          <div className="stat-card">
-            <h3>Rotator Status</h3>
-            <div className="value" style={{color: '#34d399'}}>Online</div>
-          </div>
+      <div className="header">
+        <div className="header-left">
+          <h1>🔄 Store Rotator</h1>
+          <p>Revenue-based Shopify traffic distribution</p>
         </div>
-
-        {/* The interactive client component for CRUD operations */}
-        <AdminPanel stores={stores} />
+        <div className="status-pill">
+          <span className="status-dot"></span>
+          Online
+        </div>
       </div>
+
+      <AdminPanel stores={stores} appUrl={appUrl} />
     </div>
   );
 }
