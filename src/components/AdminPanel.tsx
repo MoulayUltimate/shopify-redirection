@@ -278,28 +278,30 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
               <div className="step">
                 <div className="step-number">1</div>
                 <div className="step-content">
-                  <h3>Connect Your Shopify Store</h3>
-                  <div style={{ background: 'rgba(18, 115, 235, 0.1)', border: '1px solid var(--accent)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
-                    <p style={{ color: 'var(--accent)', fontWeight: 700, marginBottom: '0.5rem' }}>🚀 UNIFIED DASHBOARD SUPPORTED</p>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                      We support both <strong>Custom Apps (shpat_)</strong> and the new <strong>Unified Dashboard (Client ID & Secret)</strong>. 
-                      Simply provide your credentials in the form above.
-                    </p>
-                  </div>
+                  <h3>Get Your API Credentials</h3>
+                  <p>Choose the method that matches your Shopify Dashboard:</p>
                   
-                  <div style={{ background: 'rgba(52, 211, 153, 0.1)', border: '1px solid var(--green)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
-                    <p style={{ color: 'var(--green)', fontWeight: 700, marginBottom: '0.5rem' }}>✅ AUTOMATED INSTALLATION</p>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                      Once you add your store, use the <strong>"Install"</strong> button to automatically inject our smart redirection engine into your theme.
-                    </p>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '12px' }}>
+                      <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.5rem' }}>NEW: UNIFIED DASHBOARD</p>
+                      <ul style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', paddingLeft: '1rem', lineHeight: '1.5' }}>
+                        <li>Go to <strong>dev.shopify.com</strong></li>
+                        <li>Open your <strong>App</strong> → <strong>Configuration</strong></li>
+                        <li>Copy the <strong>Client ID</strong></li>
+                        <li>Click <strong>Manage</strong> to find the <strong>Client Secret</strong> (starts with <code>shpss_</code>)</li>
+                      </ul>
+                    </div>
+                    
+                    <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '12px' }}>
+                      <p style={{ color: 'var(--green)', fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.5rem' }}>LEGACY: CUSTOM APP</p>
+                      <ul style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', paddingLeft: '1rem', lineHeight: '1.5' }}>
+                        <li>Go to <strong>Store Settings → Apps</strong></li>
+                        <li>Click <strong>Develop Apps</strong> → <strong>Create App</strong></li>
+                        <li>Configure Admin API scopes</li>
+                        <li>Install & Copy <strong>Access Token</strong> (starts with <code>shpat_</code>)</li>
+                      </ul>
+                    </div>
                   </div>
-                  <ol style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 2, paddingLeft: '1.2rem' }}>
-                    <li>Click <strong>"Create an app"</strong>, name it <em>"Rotator"</em></li>
-                    <li>Go to <strong>Configuration</strong> → <strong>Admin API integration</strong></li>
-                    <li>Select these scopes: <code>read_orders</code>, <code>read_themes</code>, <code>write_themes</code></li>
-                    <li>Click <strong>Save</strong> and then <strong>Install app</strong></li>
-                    <li>Go to <strong>API credentials</strong> and copy the <strong>Admin API access token</strong> (it MUST start with <code>shpat_</code>)</li>
-                  </ol>
                 </div>
               </div>
 
