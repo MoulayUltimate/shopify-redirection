@@ -12,8 +12,16 @@ export async function addStore(formData: FormData) {
   const revenueLimit = parseFloat(formData.get('revenueLimit') as string);
 
   if (!name || !domain || !accessToken) return { error: 'All fields are required' };
+  
+  if (!accessToken.startsWith('shpat_')) {
+    return { error: 'Invalid token. Your token must start with "shpat_". Make sure you are creating a "Custom App" inside your Store Settings, NOT the Partners Dashboard.' };
+  }
 
   domain = domain.toLowerCase().trim().replace('https://', '').replace('http://', '').replace(/\/$/, '');
+  
+  if (!domain.includes('.')) {
+    domain = `${domain}.myshopify.com`;
+  }
 
   try {
     await prisma.store.create({
@@ -65,6 +73,7 @@ export async function syncRevenue(storeId: string) {
         headers: {
           'X-Shopify-Access-Token': store.accessToken,
           'Content-Type': 'application/json',
+          'User-Agent': 'Shopify-Store-Rotator/1.0',
         },
       });
 
@@ -127,6 +136,7 @@ export async function installScript(storeId: string, appUrl: string) {
     const headers = {
       'X-Shopify-Access-Token': store.accessToken,
       'Content-Type': 'application/json',
+      'User-Agent': 'Shopify-Store-Rotator/1.0',
     };
 
     // 1. Get the main published theme
