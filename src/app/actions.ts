@@ -65,6 +65,19 @@ export async function toggleStoreStatus(id: string, currentStatus: boolean) {
   }
 }
 
+export async function updateStoreLimit(id: string, newLimit: number) {
+  try {
+    await prisma.store.update({
+      where: { id },
+      data: { revenueLimit: newLimit }
+    });
+    revalidatePath('/');
+    return { success: true };
+  } catch (e) {
+    return { error: 'Failed to update limit' };
+  }
+}
+
 // ─── Sync Revenue from Shopify Orders API ───────────────
 
 async function getAccessToken(store: any) {

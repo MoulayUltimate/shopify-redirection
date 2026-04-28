@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef, useState, useTransition } from 'react';
-import { addStore, deleteStore, toggleStoreStatus, syncRevenue, syncAllRevenue, installScript, uninstallScript } from '@/app/actions';
+import { addStore, deleteStore, toggleStoreStatus, updateStoreLimit, syncRevenue, syncAllRevenue, installScript, uninstallScript } from '@/app/actions';
 
 export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: string }) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -63,6 +63,14 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
       if (result.error) setError(result.error);
       else setMessage('Script removed from theme');
       setTimeout(() => { setMessage(null); setError(null); }, 4000);
+    });
+  };
+  
+  const handleUpdateLimit = (id: string, val: string) => {
+    const limit = parseFloat(val);
+    if (isNaN(limit)) return;
+    startTransition(async () => {
+      await updateStoreLimit(id, limit);
     });
   };
 
@@ -189,8 +197,16 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                         </td>
                         <td>
                           <div className="revenue-bar-wrap">
-                            <div className="revenue-text" style={{ color: limitHit ? 'var(--red)' : 'var(--text-primary)' }}>
-                              ${store.currentRevenue.toFixed(2)} / ${store.revenueLimit.toFixed(2)}
+                            <div className="revenue-text" style={{ color: limitHit ? 'var(--red)' : 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                              ${store.currentRevenue.toFixed(2)} / $
+                              <input 
+                                type="number" 
+                                defaultValue={store.revenueLimit} 
+                                onBlur={(e) => handleUpdateLimit(store.id, e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && handleUpdateLimit(store.id, (e.target as HTMLInputElement).value)}
+                                className="limit-input"
+                                title="Click to edit limit"
+                              />
                             </div>
                             <div className="revenue-bar">
                               <div
