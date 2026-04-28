@@ -41,8 +41,9 @@ function LoginForm() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>Welcome Back</h1>
-          <p>Login to manage your store rotator</p>
+          <img src="/logo.jpg" alt="Logo" style={{ width: '80px', borderRadius: '12px', marginBottom: '1.5rem' }} />
+          <h1>AmksaSwitchify</h1>
+          <p>Login to your traffic control center</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">

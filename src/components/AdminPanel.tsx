@@ -211,12 +211,13 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                             </div>
                             <div className="revenue-bar">
                               <div
-                                className="revenue-fill"
-                                style={{
-                                  width: `${pct}%`,
-                                  background: limitHit ? 'var(--red)' : pct > 75 ? 'var(--yellow)' : 'var(--green)',
-                                }}
-                              />
+                                  className="revenue-fill"
+                                  style={{
+                                    width: `${Math.min(100, (store.currentRevenue / store.revenueLimit) * 100)}%`,
+                                    background: 'linear-gradient(90deg, #1273eb 0%, #582df2 100%)',
+                                    boxShadow: '0 0 10px rgba(18, 115, 235, 0.4)'
+                                  }}
+                                ></div>
                             </div>
                           </div>
                         </td>
@@ -277,20 +278,19 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
               <div className="step">
                 <div className="step-number">1</div>
                 <div className="step-content">
-                  <h3>Create a Custom App in Shopify</h3>
-                  <div style={{ background: 'rgba(248, 113, 113, 0.1)', border: '1px solid var(--red)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
-                    <p style={{ color: 'var(--red)', fontWeight: 700, marginBottom: '0.5rem' }}>❌ STOP! DO NOT USE THE PARTNERS DASHBOARD</p>
+                  <h3>Connect Your Shopify Store</h3>
+                  <div style={{ background: 'rgba(18, 115, 235, 0.1)', border: '1px solid var(--accent)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+                    <p style={{ color: 'var(--accent)', fontWeight: 700, marginBottom: '0.5rem' }}>🚀 UNIFIED DASHBOARD SUPPORTED</p>
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                      If your secret starts with <code>shpss_</code>, you are in the <strong>wrong place</strong>. 
-                      Partners secrets will not work.
+                      We support both <strong>Custom Apps (shpat_)</strong> and the new <strong>Unified Dashboard (Client ID & Secret)</strong>. 
+                      Simply provide your credentials in the form above.
                     </p>
                   </div>
                   
                   <div style={{ background: 'rgba(52, 211, 153, 0.1)', border: '1px solid var(--green)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
-                    <p style={{ color: 'var(--green)', fontWeight: 700, marginBottom: '0.5rem' }}>✅ USE YOUR STORE SETTINGS</p>
+                    <p style={{ color: 'var(--green)', fontWeight: 700, marginBottom: '0.5rem' }}>✅ AUTOMATED INSTALLATION</p>
                     <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                      Go here: <strong>Store Admin → Settings → Apps → Develop Apps</strong>. 
-                      You must click <strong>"Install App"</strong> to see the token starting with <code>shpat_</code>.
+                      Once you add your store, use the <strong>"Install"</strong> button to automatically inject our smart redirection engine into your theme.
                     </p>
                   </div>
                   <ol style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 2, paddingLeft: '1.2rem' }}>

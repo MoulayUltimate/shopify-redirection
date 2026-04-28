@@ -7,10 +7,10 @@ export default function Header({ user }: { user: any }) {
     <header className="main-header">
       <div className="header-left">
         <div className="logo">
-          <div className="logo-icon">🚀</div>
+          <img src="/logo.jpg" alt="AmksaSwitchify" className="logo-img" style={{ height: '48px', borderRadius: '8px' }} />
           <div className="logo-text">
-            <h1>Revenue Rotator</h1>
-            <p>Admin Dashboard</p>
+            <h1>AmksaSwitchify</h1>
+            <p>Smart Traffic & Revenue Control</p>
           </div>
         </div>
       </div>

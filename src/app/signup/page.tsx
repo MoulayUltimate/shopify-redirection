@@ -37,8 +37,9 @@ export default function SignupPage() {
     <div className="auth-container">
       <div className="auth-card">
         <div className="auth-header">
-          <h1>Create Account</h1>
-          <p>Join the Revenue Rotator network</p>
+          <img src="/logo.jpg" alt="Logo" style={{ width: '80px', borderRadius: '12px', marginBottom: '1.5rem' }} />
+          <h1>Join AmksaSwitchify</h1>
+          <p>Start smart traffic forwarding today</p>
         </div>
 
         <form onSubmit={handleSubmit} className="auth-form">
