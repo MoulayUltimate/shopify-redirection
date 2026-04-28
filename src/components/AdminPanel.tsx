@@ -249,18 +249,17 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                 <div className="step-number">1</div>
                 <div className="step-content">
                   <h3>Create a Custom App in Shopify</h3>
-                  <p>For <strong>each store</strong> you want to add:</p>
+                  <p style={{ color: 'var(--red)', fontWeight: 600 }}>⚠️ Do NOT use the Shopify Partners Dashboard. You must use your Store Settings.</p>
+                  <p>For <strong>each store</strong>, go to this specific link:</p>
+                  <div className="info-box" style={{ marginBottom: '1rem', fontFamily: 'monospace' }}>
+                    https://[your-store].myshopify.com/admin/settings/apps/development
+                  </div>
                   <ol style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 2, paddingLeft: '1.2rem' }}>
-                    <li>Go to <strong>Settings → Apps and sales channels → Develop apps</strong></li>
-                    <li>Click <strong>"Create an app"</strong>, name it <em>"Store Rotator"</em></li>
-                    <li>Go to <strong>Configuration</strong> tab and add these scopes:
-                      <ul style={{ marginTop: '0.25rem' }}>
-                        <li><code>read_orders</code> — to track revenue</li>
-                        <li><code>read_themes</code> + <code>write_themes</code> — to auto-install the redirect script</li>
-                      </ul>
-                    </li>
-                    <li>Click <strong>Install app</strong></li>
-                    <li>Go to <strong>API credentials</strong> and copy the <strong>Admin API access token</strong> (starts with <code>shpat_</code>)</li>
+                    <li>Click <strong>"Create an app"</strong>, name it <em>"Rotator"</em></li>
+                    <li>Go to <strong>Configuration</strong> → <strong>Admin API integration</strong></li>
+                    <li>Select these scopes: <code>read_orders</code>, <code>read_themes</code>, <code>write_themes</code></li>
+                    <li>Click <strong>Save</strong> and then <strong>Install app</strong></li>
+                    <li>Go to <strong>API credentials</strong> and copy the <strong>Admin API access token</strong> (it MUST start with <code>shpat_</code>)</li>
                   </ol>
                 </div>
               </div>
