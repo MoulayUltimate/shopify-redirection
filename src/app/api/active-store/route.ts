@@ -14,18 +14,14 @@ export async function OPTIONS() {
 
 export async function GET() {
   try {
-    // Find the first active store whose revenue hasn't hit the limit yet
-    const activeStore = await prisma.store.findFirst({
-      where: {
-        isActive: true,
-        currentRevenue: {
-          lt: prisma.store.fields.revenueLimit
-        }
-      },
-      orderBy: {
-        createdAt: 'asc' // Use oldest active store first, or could be randomized
-      }
+    // Fetch all active stores, ordered oldest first
+    const stores = await prisma.store.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: 'asc' }
     });
+
+    // Find the first store whose revenue hasn't hit its limit
+    const activeStore = stores.find(s => s.currentRevenue < s.revenueLimit);
 
     if (!activeStore) {
       return NextResponse.json({ error: 'No active stores available under their limits' }, { status: 404, headers: corsHeaders });

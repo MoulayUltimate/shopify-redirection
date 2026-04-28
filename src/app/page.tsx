@@ -2,6 +2,8 @@ import React from 'react';
 import { prisma } from '@/lib/prisma';
 import AdminPanel from '@/components/AdminPanel';
 
+export const dynamic = 'force-dynamic';
+
 export default async function Home() {
   const stores = await prisma.store.findMany({
     orderBy: { createdAt: 'desc' }
