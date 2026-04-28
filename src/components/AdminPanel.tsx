@@ -68,14 +68,14 @@ export default function AdminPanel({ stores }: { stores: any[] }) {
                     </td>
                     <td style={{ display: 'flex', gap: '0.5rem' }}>
                       <button 
-                        onClick={() => startTransition(() => toggleStoreStatus(store.id, store.isActive))}
+                        onClick={() => startTransition(() => { toggleStoreStatus(store.id, store.isActive); })}
                         className="btn btn-sm btn-secondary"
                         disabled={isPending}
                       >
                         {store.isActive ? 'Pause' : 'Resume'}
                       </button>
                       <button 
-                        onClick={() => startTransition(() => deleteStore(store.id))}
+                        onClick={() => startTransition(() => { deleteStore(store.id); })}
                         className="btn btn-sm btn-danger"
                         disabled={isPending}
                       >
