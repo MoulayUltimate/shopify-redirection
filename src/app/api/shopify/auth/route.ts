@@ -14,7 +14,8 @@ export async function GET(req: NextRequest) {
   }
 
   const scopes = 'read_orders,read_themes,write_themes';
-  const redirectUri = `${process.env.NEXT_PUBLIC_APP_URL}/api/shopify/callback`;
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
+  const redirectUri = `${baseUrl}/api/shopify/callback`;
   
   // Create a state to store the storeId if we have it, or just a random string
   const state = searchParams.get('storeId') || 'no-id';
