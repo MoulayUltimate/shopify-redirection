@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 
-export default function LoginPage() {
+function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -27,18 +27,14 @@ export default function LoginPage() {
       });
 
       if (res?.error) {
-        if (res.error === 'CredentialsSignin') {
-          setError('Invalid email or password. Please try again.');
-        } else {
-          setError(res.error || 'An unexpected error occurred.');
-        }
+        setError('Invalid email or password. Please try again.');
         setLoading(false);
       } else {
         router.push('/');
         router.refresh();
       }
     } catch (err: any) {
-      setError('Connection failed. Please check your internet or try again later.');
+      setError('Connection failed. Please try again.');
       setLoading(false);
     }
   };
@@ -89,5 +85,13 @@ export default function LoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="auth-container">Loading...</div>}>
+      <LoginForm />
+    </Suspense>
   );
 }
