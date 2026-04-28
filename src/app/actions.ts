@@ -128,9 +128,11 @@ async function getAccessToken(store: any) {
   if (store.accessToken) return store.accessToken;
   
   if (!store.clientId || !store.clientSecret) {
-    throw new Error('No credentials found for this store');
+    throw new Error('No credentials found. Please provide an Access Token (shpat_) or Client ID/Secret.');
   }
 
+  // The Client Credentials flow for Unified Apps requires the app to be installed first.
+  // If it's not installed, Shopify returns "app_not_found".
   const res = await fetch(`https://${store.domain}/admin/oauth/access_token`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -143,7 +145,10 @@ async function getAccessToken(store: any) {
 
   if (!res.ok) {
     const errText = await res.text();
-    throw new Error(`Auth failed (${res.status}): ${errText.substring(0, 100)}`);
+    if (errText.includes('app_not_found') || errText.includes('app_not_installed')) {
+      throw new Error(`Auth failed: App not installed on ${store.domain}. We recommend using the "Custom App (shpat_)" method instead.`);
+    }
+    throw new Error(`Shopify Auth Error (${res.status}): Please check your Client ID and Secret.`);
   }
 
   const data = await res.json();
