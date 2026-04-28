@@ -1,19 +1,9 @@
-import { auth } from "@/auth";
+import NextAuth from "next-auth";
+import { authConfig } from "./auth.config";
 
-export default auth((req) => {
-  const isLoggedIn = !!req.auth;
-  const isOnDashboard = req.nextUrl.pathname === "/";
-  const isOnAuthPage = req.nextUrl.pathname === "/login" || req.nextUrl.pathname === "/signup";
-
-  if (isOnDashboard && !isLoggedIn) {
-    return Response.redirect(new URL("/login", req.nextUrl));
-  }
-
-  if (isOnAuthPage && isLoggedIn) {
-    return Response.redirect(new URL("/", req.nextUrl));
-  }
-});
+export default NextAuth(authConfig).auth;
 
 export const config = {
+  // https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
   matcher: ["/((?!api|_next/static|_next/image|favicon.ico).*)"],
 };
