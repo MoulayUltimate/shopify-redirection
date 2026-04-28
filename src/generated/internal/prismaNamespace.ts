@@ -596,6 +596,7 @@ export const StoreScalarFieldEnum = {
   id: 'id',
   name: 'name',
   domain: 'domain',
+  primaryDomain: 'primaryDomain',
   accessToken: 'accessToken',
   clientId: 'clientId',
   clientSecret: 'clientSecret',

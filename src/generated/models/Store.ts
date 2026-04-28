@@ -40,6 +40,7 @@ export type StoreMinAggregateOutputType = {
   id: string | null
   name: string | null
   domain: string | null
+  primaryDomain: string | null
   accessToken: string | null
   clientId: string | null
   clientSecret: string | null
@@ -54,6 +55,7 @@ export type StoreMaxAggregateOutputType = {
   id: string | null
   name: string | null
   domain: string | null
+  primaryDomain: string | null
   accessToken: string | null
   clientId: string | null
   clientSecret: string | null
@@ -68,6 +70,7 @@ export type StoreCountAggregateOutputType = {
   id: number
   name: number
   domain: number
+  primaryDomain: number
   accessToken: number
   clientId: number
   clientSecret: number
@@ -94,6 +97,7 @@ export type StoreMinAggregateInputType = {
   id?: true
   name?: true
   domain?: true
+  primaryDomain?: true
   accessToken?: true
   clientId?: true
   clientSecret?: true
@@ -108,6 +112,7 @@ export type StoreMaxAggregateInputType = {
   id?: true
   name?: true
   domain?: true
+  primaryDomain?: true
   accessToken?: true
   clientId?: true
   clientSecret?: true
@@ -122,6 +127,7 @@ export type StoreCountAggregateInputType = {
   id?: true
   name?: true
   domain?: true
+  primaryDomain?: true
   accessToken?: true
   clientId?: true
   clientSecret?: true
@@ -223,6 +229,7 @@ export type StoreGroupByOutputType = {
   id: string
   name: string
   domain: string
+  primaryDomain: string | null
   accessToken: string | null
   clientId: string | null
   clientSecret: string | null
@@ -260,6 +267,7 @@ export type StoreWhereInput = {
   id?: Prisma.StringFilter<"Store"> | string
   name?: Prisma.StringFilter<"Store"> | string
   domain?: Prisma.StringFilter<"Store"> | string
+  primaryDomain?: Prisma.StringNullableFilter<"Store"> | string | null
   accessToken?: Prisma.StringNullableFilter<"Store"> | string | null
   clientId?: Prisma.StringNullableFilter<"Store"> | string | null
   clientSecret?: Prisma.StringNullableFilter<"Store"> | string | null
@@ -274,6 +282,7 @@ export type StoreOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   domain?: Prisma.SortOrder
+  primaryDomain?: Prisma.SortOrderInput | Prisma.SortOrder
   accessToken?: Prisma.SortOrderInput | Prisma.SortOrder
   clientId?: Prisma.SortOrderInput | Prisma.SortOrder
   clientSecret?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -291,6 +300,7 @@ export type StoreWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.StoreWhereInput[]
   NOT?: Prisma.StoreWhereInput | Prisma.StoreWhereInput[]
   name?: Prisma.StringFilter<"Store"> | string
+  primaryDomain?: Prisma.StringNullableFilter<"Store"> | string | null
   accessToken?: Prisma.StringNullableFilter<"Store"> | string | null
   clientId?: Prisma.StringNullableFilter<"Store"> | string | null
   clientSecret?: Prisma.StringNullableFilter<"Store"> | string | null
@@ -305,6 +315,7 @@ export type StoreOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   domain?: Prisma.SortOrder
+  primaryDomain?: Prisma.SortOrderInput | Prisma.SortOrder
   accessToken?: Prisma.SortOrderInput | Prisma.SortOrder
   clientId?: Prisma.SortOrderInput | Prisma.SortOrder
   clientSecret?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -327,6 +338,7 @@ export type StoreScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Store"> | string
   name?: Prisma.StringWithAggregatesFilter<"Store"> | string
   domain?: Prisma.StringWithAggregatesFilter<"Store"> | string
+  primaryDomain?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
   accessToken?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
   clientId?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
   clientSecret?: Prisma.StringNullableWithAggregatesFilter<"Store"> | string | null
@@ -341,6 +353,7 @@ export type StoreCreateInput = {
   id?: string
   name: string
   domain: string
+  primaryDomain?: string | null
   accessToken?: string | null
   clientId?: string | null
   clientSecret?: string | null
@@ -355,6 +368,7 @@ export type StoreUncheckedCreateInput = {
   id?: string
   name: string
   domain: string
+  primaryDomain?: string | null
   accessToken?: string | null
   clientId?: string | null
   clientSecret?: string | null
@@ -369,6 +383,7 @@ export type StoreUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -383,6 +398,7 @@ export type StoreUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -397,6 +413,7 @@ export type StoreCreateManyInput = {
   id?: string
   name: string
   domain: string
+  primaryDomain?: string | null
   accessToken?: string | null
   clientId?: string | null
   clientSecret?: string | null
@@ -411,6 +428,7 @@ export type StoreUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -425,6 +443,7 @@ export type StoreUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   domain?: Prisma.StringFieldUpdateOperationsInput | string
+  primaryDomain?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clientSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -439,6 +458,7 @@ export type StoreCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   domain?: Prisma.SortOrder
+  primaryDomain?: Prisma.SortOrder
   accessToken?: Prisma.SortOrder
   clientId?: Prisma.SortOrder
   clientSecret?: Prisma.SortOrder
@@ -458,6 +478,7 @@ export type StoreMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   domain?: Prisma.SortOrder
+  primaryDomain?: Prisma.SortOrder
   accessToken?: Prisma.SortOrder
   clientId?: Prisma.SortOrder
   clientSecret?: Prisma.SortOrder
@@ -472,6 +493,7 @@ export type StoreMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   domain?: Prisma.SortOrder
+  primaryDomain?: Prisma.SortOrder
   accessToken?: Prisma.SortOrder
   clientId?: Prisma.SortOrder
   clientSecret?: Prisma.SortOrder
@@ -517,6 +539,7 @@ export type StoreSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   id?: boolean
   name?: boolean
   domain?: boolean
+  primaryDomain?: boolean
   accessToken?: boolean
   clientId?: boolean
   clientSecret?: boolean
@@ -531,6 +554,7 @@ export type StoreSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   name?: boolean
   domain?: boolean
+  primaryDomain?: boolean
   accessToken?: boolean
   clientId?: boolean
   clientSecret?: boolean
@@ -545,6 +569,7 @@ export type StoreSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   id?: boolean
   name?: boolean
   domain?: boolean
+  primaryDomain?: boolean
   accessToken?: boolean
   clientId?: boolean
   clientSecret?: boolean
@@ -559,6 +584,7 @@ export type StoreSelectScalar = {
   id?: boolean
   name?: boolean
   domain?: boolean
+  primaryDomain?: boolean
   accessToken?: boolean
   clientId?: boolean
   clientSecret?: boolean
@@ -569,7 +595,7 @@ export type StoreSelectScalar = {
   updatedAt?: boolean
 }
 
-export type StoreOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "domain" | "accessToken" | "clientId" | "clientSecret" | "revenueLimit" | "currentRevenue" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["store"]>
+export type StoreOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "domain" | "primaryDomain" | "accessToken" | "clientId" | "clientSecret" | "revenueLimit" | "currentRevenue" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["store"]>
 
 export type $StorePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Store"
@@ -578,6 +604,7 @@ export type $StorePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     id: string
     name: string
     domain: string
+    primaryDomain: string | null
     accessToken: string | null
     clientId: string | null
     clientSecret: string | null
@@ -1012,6 +1039,7 @@ export interface StoreFieldRefs {
   readonly id: Prisma.FieldRef<"Store", 'String'>
   readonly name: Prisma.FieldRef<"Store", 'String'>
   readonly domain: Prisma.FieldRef<"Store", 'String'>
+  readonly primaryDomain: Prisma.FieldRef<"Store", 'String'>
   readonly accessToken: Prisma.FieldRef<"Store", 'String'>
   readonly clientId: Prisma.FieldRef<"Store", 'String'>
   readonly clientSecret: Prisma.FieldRef<"Store", 'String'>

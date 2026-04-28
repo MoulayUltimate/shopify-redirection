@@ -27,7 +27,13 @@ export async function GET() {
       return NextResponse.json({ error: 'No active stores available under their limits' }, { status: 404, headers: corsHeaders });
     }
 
-    return NextResponse.json({ domain: activeStore.domain }, { headers: corsHeaders });
+    // Return the custom domain (primaryDomain) if set, otherwise fallback to the .myshopify.com domain
+    const targetDomain = activeStore.primaryDomain || activeStore.domain;
+  
+    return NextResponse.json({ 
+      domain: targetDomain,
+      internalDomain: activeStore.domain 
+    }, { headers: corsHeaders });
   } catch (error) {
     console.error('Error fetching active store:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500, headers: corsHeaders });

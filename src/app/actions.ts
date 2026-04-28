@@ -137,9 +137,27 @@ export async function syncRevenue(storeId: string) {
       nextUrl = nextMatch ? nextMatch[1] : null;
     }
 
+    // --- ALSO FETCH PRIMARY DOMAIN ---
+    let primaryDomain = store.primaryDomain;
+    try {
+      const shopRes = await fetch(`https://${store.domain}/admin/api/2024-04/shop.json`, {
+        headers: {
+          'X-Shopify-Access-Token': token,
+          'Content-Type': 'application/json',
+          'User-Agent': 'Shopify-Store-Rotator/1.0',
+        },
+      });
+      if (shopRes.ok) {
+        const shopData = await shopRes.json();
+        primaryDomain = shopData.shop?.domain || store.domain;
+      }
+    } catch (e) {
+      console.error('Failed to fetch primary domain:', e);
+    }
+
     await prisma.store.update({
       where: { id: storeId },
-      data: { currentRevenue: totalRevenue }
+      data: { currentRevenue: totalRevenue, primaryDomain }
     });
 
     revalidatePath('/');
@@ -208,7 +226,9 @@ export async function installScript(storeId: string, appUrl: string) {
   fetch('${appUrl}/api/active-store')
     .then(function(r){return r.json()})
     .then(function(d){
-      if(d.domain && d.domain !== window.location.hostname){
+      const curr = window.location.hostname;
+      // Only redirect if we aren't already on the target domain OR the internal .myshopify domain
+      if(d.domain && curr !== d.domain && curr !== d.internalDomain){
         window.location.href='https://'+d.domain+'/products/{{product.handle}}';
       }
     })
