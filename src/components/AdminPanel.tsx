@@ -225,19 +225,39 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                             <div className="revenue-bar">
                               <div
                                   className="revenue-fill"
-                                  style={{
-                                    width: `${Math.min(100, (store.currentRevenue / store.revenueLimit) * 100)}%`,
-                                    background: 'linear-gradient(90deg, #1273eb 0%, #582df2 100%)',
-                                    boxShadow: '0 0 10px rgba(18, 115, 235, 0.4)'
-                                  }}
-                                ></div>
+                        <td style={{ minWidth: '180px' }}>
+                          <div className="revenue-container">
+                            <div className="revenue-header">
+                              <span className={`revenue-amount ${limitHit ? 'text-red' : ''}`}>
+                                ${store.currentRevenue.toFixed(2)}
+                              </span>
+                              <span className="revenue-limit">
+                                / $
+                                <input 
+                                  type="number" 
+                                  defaultValue={store.revenueLimit} 
+                                  onBlur={(e) => handleUpdateLimit(store.id, e.target.value)}
+                                  className="limit-input"
+                                />
+                              </span>
                             </div>
+                            <div className="progress-bg">
+                              <div 
+                                className={`progress-bar ${limitHit ? 'bg-red' : 'bg-blue'}`} 
+                                style={{ width: `${Math.min(100, (store.currentRevenue / store.revenueLimit) * 100)}%` }}
+                              ></div>
+                            </div>
+                            {!limitHit && store.isActive && (
+                              <div style={{ fontSize: '0.6rem', marginTop: '4px', color: 'var(--text-secondary)' }}>
+                                💰 ${Math.max(0, store.revenueLimit - store.currentRevenue).toFixed(2)} remaining
+                              </div>
+                            )}
                           </div>
                         </td>
                         <td>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                             <span className={`badge ${store.isActive && !limitHit ? 'badge-green' : limitHit ? 'badge-red' : 'badge-yellow'}`}>
-                              {store.isActive && !limitHit ? 'Live' : limitHit ? 'Limit Hit' : 'Paused'}
+                              {store.isActive && !limitHit ? '● Live' : limitHit ? '● Limit Hit' : '● Paused'}
                             </span>
                             
                             {/* Traffic Flow Indicators */}
@@ -275,36 +295,36 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                                   <path d="M22.9 8.2l-3.3-1.1c-.2-.1-.5-.1-.7.1L15 10.1l-3.9-2.9c-.2-.1-.5-.1-.7.1L7.1 8.2c-.3.1-.5.4-.5.7v12.2c0 .3.2.6.5.7l1.4.5 3.3-2.5 3.3 2.5 1.4-.5c.3-.1.5-.4.5-.7V8.9c0-.3-.2-.6-.5-.7z" fill="white"/>
                                   <path d="M15 27.5c6.9 0 12.5-5.6 12.5-12.5S21.9 2.5 15 2.5 2.5 8.1 2.5 15s5.6 12.5 12.5 12.5zm0-23.5c6.1 0 11 4.9 11 11s-4.9 11-11 11-11-4.9-11-11 4.9-11 11-11z" fill="white"/>
                                 </svg>
-                                Connect to Shopify
+                                Connect
                               </a>
                             ) : (
                               <>
-                                <button onClick={() => handleSync(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Sync revenue and domains from Shopify">
+                                <button onClick={() => handleSync(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Sync revenue">
                                   🔄 <span className="btn-text">Sync</span>
                                 </button>
-                                <button onClick={() => handleInstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Auto-insert the redirect script into your Shopify theme">
+                                <button onClick={() => handleInstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Install script">
                                   📥 <span className="btn-text">Install</span>
                                 </button>
-                                <button onClick={() => handleUninstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Remove the redirect script from your Shopify theme">
+                                <button onClick={() => handleUninstallScript(store.id)} className="btn btn-ghost btn-sm" disabled={isPending} title="Remove script">
                                   📤 <span className="btn-text">Remove</span>
                                 </button>
                               </>
                             )}
                             <button
-                              onClick={() => startTransition(() => { toggleStoreStatus(store.id, store.isActive); })}
+                              onClick={() => {
+                                startTransition(async () => {
+                                  await toggleStoreStatus(store.id, store.isActive);
+                                });
+                              }}
                               className="btn btn-ghost btn-sm"
                               disabled={isPending}
-                              title={store.isActive ? "Pause traffic to this store" : "Resume traffic to this store"}
+                              title={store.isActive ? "Pause" : "Resume"}
+                              style={{ color: store.isActive ? '#ff4b4b' : '#008060' }}
                             >
                               {store.isActive ? '⏸' : '▶️'} <span className="btn-text">{store.isActive ? 'Pause' : 'Resume'}</span>
                             </button>
-                            <button
-                              onClick={() => startTransition(() => { deleteStore(store.id); })}
-                              className="btn btn-danger btn-sm"
-                              disabled={isPending}
-                              title="Delete this store from the rotator"
-                            >
-                              🗑 <span className="btn-text">Delete</span>
+                            <button onClick={() => { if(confirm('Delete store?')) startTransition(() => deleteStore(store.id)); }} className="btn btn-ghost btn-sm btn-delete" disabled={isPending}>
+                              🗑️ <span className="btn-text">Delete</span>
                             </button>
                           </div>
                         </td>
