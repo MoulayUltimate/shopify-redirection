@@ -583,6 +583,147 @@ export default function AdminPanel({ stores, session }: { stores: any[]; session
                   <p className="flex items-center gap-2"><span className="material-symbols-outlined text-error text-[18px]">delete</span><strong>Delete</strong> — Remove from rotator</p>
                 </div>
               </div>
+
+              {/* How it works */}
+              <div className="border border-outline-variant rounded-xl p-lg bg-gradient-to-br from-blue-50/40 to-white">
+                <div className="flex items-center gap-3 mb-md">
+                  <span className="material-symbols-outlined text-secondary text-[22px]">auto_awesome</span>
+                  <h3 className="font-h2 text-[16px] text-on-surface">How AmksaSwitchify Works</h3>
+                </div>
+                <p className="text-body-md text-on-surface-variant mb-md">
+                  Think of AmksaSwitchify as a smart traffic conductor for your Shopify portfolio. The plugin keeps an eye
+                  on every store you connect and quietly steps in the moment one of them is ready for a break — so your
+                  customers always land somewhere that&apos;s open for business.
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-md">
+                  <div className="rounded-lg border border-outline-variant bg-white p-md">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="material-symbols-outlined text-secondary text-[20px]">monitoring</span>
+                      <h4 className="font-h2 text-[14px] text-on-surface">1. We watch your stores</h4>
+                    </div>
+                    <p className="text-body-sm text-on-surface-variant">
+                      Every connected store reports back in real time. You set a comfort level for each one — we keep score.
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-outline-variant bg-white p-md">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="material-symbols-outlined text-amber-600 text-[20px]">timer</span>
+                      <h4 className="font-h2 text-[14px] text-on-surface">2. A store fills up</h4>
+                    </div>
+                    <p className="text-body-sm text-on-surface-variant">
+                      When a store reaches the threshold you set, AmksaSwitchify marks it as <strong>Full</strong> and
+                      gracefully takes it out of rotation — no manual work from your team.
+                    </p>
+                  </div>
+                  <div className="rounded-lg border border-outline-variant bg-white p-md">
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="material-symbols-outlined text-green-600 text-[20px]">forward</span>
+                      <h4 className="font-h2 text-[14px] text-on-surface">3. Traffic keeps flowing</h4>
+                    </div>
+                    <p className="text-body-sm text-on-surface-variant">
+                      Visitors that would have hit the full store are forwarded to the next available one in your portfolio.
+                      Zero downtime, zero lost sessions.
+                    </p>
+                  </div>
+                </div>
+                <p className="text-body-sm text-on-surface-variant mt-md italic">
+                  In short: you focus on growing the catalogue, AmksaSwitchify keeps the doors open.
+                </p>
+              </div>
+
+              {/* FAQ */}
+              <div className="border border-outline-variant rounded-xl p-lg">
+                <div className="flex items-center gap-3 mb-md">
+                  <span className="material-symbols-outlined text-secondary text-[22px]">quiz</span>
+                  <h3 className="font-h2 text-[16px] text-on-surface">Frequently Asked Questions</h3>
+                </div>
+                <div className="space-y-3">
+                  <details className="group rounded-lg border border-outline-variant bg-white p-md hover:border-secondary/40 transition-colors">
+                    <summary className="cursor-pointer flex items-center justify-between text-body-md font-semibold text-on-surface">
+                      Do I need to touch my Shopify theme code?
+                      <span className="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                    </summary>
+                    <p className="text-body-sm text-on-surface-variant mt-2">
+                      No. Once a store is connected, AmksaSwitchify handles everything for you — installation, updates,
+                      and removal — across every theme on the storefront.
+                    </p>
+                  </details>
+                  <details className="group rounded-lg border border-outline-variant bg-white p-md hover:border-secondary/40 transition-colors">
+                    <summary className="cursor-pointer flex items-center justify-between text-body-md font-semibold text-on-surface">
+                      What happens when a store hits its limit?
+                      <span className="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                    </summary>
+                    <p className="text-body-sm text-on-surface-variant mt-2">
+                      It&apos;s flipped to <strong>Full</strong> and visitors are seamlessly forwarded to the next available
+                      store in your rotation. You&apos;ll see a <em>Forwarding to</em> indicator on the row so you always know
+                      where traffic is going.
+                    </p>
+                  </details>
+                  <details className="group rounded-lg border border-outline-variant bg-white p-md hover:border-secondary/40 transition-colors">
+                    <summary className="cursor-pointer flex items-center justify-between text-body-md font-semibold text-on-surface">
+                      Can I change a store&apos;s limit later?
+                      <span className="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                    </summary>
+                    <p className="text-body-sm text-on-surface-variant mt-2">
+                      Anytime. The limit field on each row is editable — type the new value, hit save, and the change is
+                      live immediately.
+                    </p>
+                  </details>
+                  <details className="group rounded-lg border border-outline-variant bg-white p-md hover:border-secondary/40 transition-colors">
+                    <summary className="cursor-pointer flex items-center justify-between text-body-md font-semibold text-on-surface">
+                      Will my customers notice anything?
+                      <span className="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                    </summary>
+                    <p className="text-body-sm text-on-surface-variant mt-2">
+                      The forwarding is fast and unobtrusive. From the visitor&apos;s perspective they simply land on a
+                      working store and shop normally.
+                    </p>
+                  </details>
+                  <details className="group rounded-lg border border-outline-variant bg-white p-md hover:border-secondary/40 transition-colors">
+                    <summary className="cursor-pointer flex items-center justify-between text-body-md font-semibold text-on-surface">
+                      How do I add a teammate?
+                      <span className="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                    </summary>
+                    <p className="text-body-sm text-on-surface-variant mt-2">
+                      Each team member signs up with their own email. As the owner you keep visibility across the whole
+                      portfolio from your <strong>Master View</strong>.
+                    </p>
+                  </details>
+                  <details className="group rounded-lg border border-outline-variant bg-white p-md hover:border-secondary/40 transition-colors">
+                    <summary className="cursor-pointer flex items-center justify-between text-body-md font-semibold text-on-surface">
+                      How quickly does the dashboard refresh?
+                      <span className="material-symbols-outlined text-slate-400 group-open:rotate-180 transition-transform">expand_more</span>
+                    </summary>
+                    <p className="text-body-sm text-on-surface-variant mt-2">
+                      Automatically every 30 seconds. You can also click <strong>Sync All</strong> for an instant pull
+                      from every connected store.
+                    </p>
+                  </details>
+                </div>
+              </div>
+
+              {/* Contact */}
+              <div className="border border-outline-variant rounded-xl p-lg bg-gradient-to-br from-slate-900 to-slate-800 text-white">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-md">
+                  <div>
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="material-symbols-outlined text-amber-300 text-[24px]">support_agent</span>
+                      <h3 className="font-h2 text-[18px]">Need a hand?</h3>
+                    </div>
+                    <p className="text-body-md text-slate-300 max-w-md">
+                      Our team is one email away. Whether it&apos;s a setup question, a billing query, or feedback — we
+                      usually reply within a few hours on business days.
+                    </p>
+                  </div>
+                  <a
+                    href="mailto:support@amksaswitchify.com"
+                    className="inline-flex items-center gap-2 bg-amber-400 hover:bg-amber-300 text-slate-900 font-semibold px-5 py-3 rounded-lg transition-colors whitespace-nowrap"
+                  >
+                    <span className="material-symbols-outlined text-[20px]">mail</span>
+                    support@amksaswitchify.com
+                  </a>
+                </div>
+              </div>
             </div>
           )}
         </div>
