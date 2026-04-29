@@ -12,11 +12,21 @@ export async function OPTIONS() {
   return NextResponse.json({}, { headers: corsHeaders });
 }
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    // Fetch all active stores, ordered oldest first
+    const { searchParams } = new URL(req.url);
+    const userId = searchParams.get('uid');
+
+    if (!userId) {
+      return NextResponse.json({ error: 'Missing User ID' }, { status: 400, headers: corsHeaders });
+    }
+
+    // Fetch all active stores for THIS specific user, ordered oldest first
     const stores = await prisma.store.findMany({
-      where: { isActive: true },
+      where: { 
+        isActive: true,
+        userId: userId
+      },
       orderBy: { createdAt: 'asc' }
     });
 

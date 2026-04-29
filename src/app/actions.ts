@@ -277,7 +277,7 @@ export async function installScript(storeId: string, appUrl: string) {
     const snippet = `${SCRIPT_MARKER_START}
 {% if template == 'product' %}
 <script>
-  fetch('${appUrl}/api/active-store')
+  fetch('${appUrl}/api/active-store?uid=${userId}')
     .then(function(r){return r.json()})
     .then(function(d){
       const curr = window.location.hostname;
