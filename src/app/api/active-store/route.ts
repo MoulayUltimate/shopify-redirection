@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { syncAllRevenue } from '@/app/actions';
+
+export const dynamic = 'force-dynamic';
 
 // Enable CORS for Shopify storefronts
 const corsHeaders = {
@@ -33,8 +36,13 @@ export async function GET(req: Request) {
     // Find the first store whose revenue hasn't hit its limit
     const activeStore = stores.find(s => s.currentRevenue < s.revenueLimit);
 
+    // BACKGROUND AUTO-SYNC: 
+    // We don't "await" this so it doesn't slow down the redirection.
+    // It will sync orders for the next customer visit.
+    syncAllRevenue(userId).catch(e => console.error('BG Sync failed:', e));
+
     if (!activeStore) {
-      return NextResponse.json({ error: 'No active stores available under their limits' }, { status: 404, headers: corsHeaders });
+      return NextResponse.json({ domain: null }, { headers: corsHeaders });
     }
 
     // Return the custom domain (primaryDomain) if set, otherwise fallback to the .myshopify.com domain

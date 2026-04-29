@@ -223,8 +223,8 @@ export async function syncRevenue(storeId: string) {
   }
 }
 
-export async function syncAllRevenue() {
-  const userId = await getUserId();
+export async function syncAllRevenue(providedUserId?: string) {
+  const userId = providedUserId || await getUserId();
   if (!userId) return [];
 
   const stores = await prisma.store.findMany({ where: { userId } });
@@ -277,7 +277,7 @@ export async function installScript(storeId: string, appUrl: string) {
     const snippet = `${SCRIPT_MARKER_START}
 {% if template == 'product' %}
 <script>
-  fetch('${appUrl}/api/active-store?uid=${userId}')
+  fetch('${appUrl}/api/active-store?uid=${userId}&t=' + Date.now())
     .then(function(r){return r.json()})
     .then(function(d){
       const curr = window.location.hostname;
