@@ -262,35 +262,33 @@ export async function installScript(storeId: string, appUrl: string) {
     if (!themesRes.ok) return { error: `Cannot access themes` };
 
     const themesData = await themesRes.json();
-    const mainTheme = themesData.themes?.find((t: any) => t.role === 'main');
-    if (!mainTheme) return { error: 'No main theme found' };
+    const themes = themesData.themes || [];
+    if (themes.length === 0) return { error: 'No themes found' };
 
-    const assetRes = await fetch(`${apiBase}/themes/${mainTheme.id}/assets.json?asset[key]=layout/theme.liquid`, { headers });
-    if (!assetRes.ok) return { error: `Cannot read theme.liquid` };
+    let successCount = 0;
+    for (const theme of themes) {
+      try {
+        const assetRes = await fetch(`${apiBase}/themes/${theme.id}/assets.json?asset[key]=layout/theme.liquid`, { headers });
+        if (!assetRes.ok) continue;
 
-    const assetData = await assetRes.json();
-    let themeContent = assetData.asset?.value || '';
+        const assetData = await assetRes.json();
+        let themeContent = assetData.asset?.value || '';
 
-    const markerRegex = new RegExp(`${SCRIPT_MARKER_START}[\\s\\S]*?${SCRIPT_MARKER_END}`, 'g');
-    themeContent = themeContent.replace(markerRegex, '');
+        const markerRegex = new RegExp(`${SCRIPT_MARKER_START}[\\s\\S]*?${SCRIPT_MARKER_END}`, 'g');
+        themeContent = themeContent.replace(markerRegex, '');
 
-    const snippet = `${SCRIPT_MARKER_START}
+        const snippet = `${SCRIPT_MARKER_START}
 <script>
   (function() {
-    var appUrl = '${appUrl.replace(/\/$/, "")}';
-    if (appUrl.indexOf('localhost') !== -1) { appUrl = 'https://amksaswitchify.com'; }
-    
-    console.log('AmksaSwitchify: Checking rotation...');
+    var appUrl = 'https://amksaswitchify.com';
     fetch(appUrl + '/api/active-store?uid=${userId}&t=' + Date.now())
       .then(function(r){return r.json()})
       .then(function(d){
         if (!d.domain) return;
-        
-        var clean = function(h) { return h.replace(/^www\./, "").replace(/^https?:\/\//, "").toLowerCase().trim(); };
+        var clean = function(h) { return h.replace(/^www\\./, "").replace(/^https?:\\/\\//, "").toLowerCase().trim(); };
         var curr = clean(window.location.hostname);
         var target = clean(d.domain);
         var internal = clean(d.internalDomain || "");
-
         if(target && curr !== target && curr !== internal){
           window.location.href = 'https://' + d.domain + window.location.pathname + window.location.search;
         }
@@ -300,23 +298,28 @@ export async function installScript(storeId: string, appUrl: string) {
 </script>
 ${SCRIPT_MARKER_END}`;
 
-    const headRegex = /<\/head>/i;
-    if (headRegex.test(themeContent)) {
-      themeContent = themeContent.replace(headRegex, snippet + '\n</head>');
-    } else {
-      // Fallback: just append to the end if </head> is missing
-      themeContent += '\n' + snippet;
+        const headRegex = /<\/head>/i;
+        if (headRegex.test(themeContent)) {
+          themeContent = themeContent.replace(headRegex, snippet + '\n</head>');
+        } else {
+          themeContent += '\n' + snippet;
+        }
+
+        await fetch(`${apiBase}/themes/${theme.id}/assets.json`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({
+            asset: { key: 'layout/theme.liquid', value: themeContent }
+          })
+        });
+        successCount++;
+      } catch (e) {}
     }
 
-    const updateRes = await fetch(`${apiBase}/themes/${mainTheme.id}/assets.json`, {
-      method: 'PUT',
-      headers,
-      body: JSON.stringify({
-        asset: { key: 'layout/theme.liquid', value: themeContent }
-      })
-    });
+    if (successCount === 0) return { error: 'Failed to update any themes' };
 
-    if (!updateRes.ok) return { error: `Failed to update theme` };
+    revalidatePath('/');
+    return { success: true };
 
     revalidatePath('/');
     return { success: true };
