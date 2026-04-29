@@ -275,11 +275,12 @@ export async function installScript(storeId: string, appUrl: string) {
     themeContent = themeContent.replace(markerRegex, '');
 
     const snippet = `${SCRIPT_MARKER_START}
-{% if template == 'product' %}
 <script>
   (function() {
     console.log('AmksaSwitchify: Checking rotation...');
-    fetch('${appUrl}/api/active-store?uid=${userId}&t=' + Date.now())
+    var appUrl = '${appUrl}';
+    var uid = '${userId}';
+    fetch(appUrl + '/api/active-store?uid=' + uid + '&t=' + Date.now())
       .then(function(r){return r.json()})
       .then(function(d){
         if (!d.domain) {
@@ -287,25 +288,25 @@ export async function installScript(storeId: string, appUrl: string) {
           return;
         }
         
-        const clean = function(h) { return h.replace(/^www\./, "").replace(/^https?:\/\//, "").toLowerCase(); };
-        const curr = clean(window.location.hostname);
-        const target = clean(d.domain);
-        const internal = clean(d.internalDomain || "");
+        var clean = function(h) { return h.replace(/^www\./, "").replace(/^https?:\/\//, "").toLowerCase().trim(); };
+        var curr = clean(window.location.hostname);
+        var target = clean(d.domain);
+        var internal = clean(d.internalDomain || "");
 
         console.log('AmksaSwitchify: Current ->', curr);
         console.log('AmksaSwitchify: Target ->', target);
 
         if(target && curr !== target && curr !== internal){
-          console.log('AmksaSwitchify: REDIRECTING!');
-          window.location.replace('https://' + d.domain + '/products/{{product.handle}}');
+          console.log('AmksaSwitchify: REDIRECTING NOW!');
+          var path = window.location.pathname;
+          window.location.href = 'https://' + d.domain + path;
         } else {
-          console.log('AmksaSwitchify: Already on active store.');
+          console.log('AmksaSwitchify: Store is active. No redirect needed.');
         }
       })
       .catch(function(e){console.error('AmksaSwitchify Error:',e)});
   })();
 </script>
-{% endif %}
 ${SCRIPT_MARKER_END}`;
 
     themeContent = themeContent.replace('</head>', snippet + '\n</head>');
