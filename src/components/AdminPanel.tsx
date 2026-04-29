@@ -283,7 +283,7 @@ export default function AdminPanel({ stores, session }: { stores: any[], session
                                 <button onClick={() => handleSync(store.id)} className="p-1.5 text-slate-400 hover:text-secondary hover:bg-blue-50 rounded" title="Sync"><span className="material-symbols-outlined text-[18px]">sync</span></button>
                                 <button onClick={() => handleInstallScript(store.id)} className="p-1.5 text-slate-400 hover:text-secondary hover:bg-blue-50 rounded" title="Install"><span className="material-symbols-outlined text-[18px]">add_circle</span></button>
                                 <button onClick={() => startTransition(async () => { await toggleStoreStatus(store.id, store.isActive); })} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded" title={store.isActive ? "Pause" : "Resume"}><span className="material-symbols-outlined text-[18px]">{store.isActive ? 'pause' : 'play_arrow'}</span></button>
-                                <button onClick={() => { if(confirm('Delete store?')) startTransition(() => deleteStore(store.id)); }} className="p-1.5 text-slate-400 hover:text-error hover:bg-red-50 rounded" title="Delete"><span className="material-symbols-outlined text-[18px]">delete</span></button>
+                                <button onClick={() => { if(confirm('Delete store?')) startTransition(async () => { await deleteStore(store.id); }); }} className="p-1.5 text-slate-400 hover:text-error hover:bg-red-50 rounded" title="Delete"><span className="material-symbols-outlined text-[18px]">delete</span></button>
                               </div>
                             </td>
                           </tr>
