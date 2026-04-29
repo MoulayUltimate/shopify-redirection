@@ -277,31 +277,22 @@ export async function installScript(storeId: string, appUrl: string) {
     const snippet = `${SCRIPT_MARKER_START}
 <script>
   (function() {
+    var appUrl = '${appUrl.replace(/\/$/, "")}';
+    if (appUrl.indexOf('localhost') !== -1) { appUrl = 'https://amksaswitchify.com'; }
+    
     console.log('AmksaSwitchify: Checking rotation...');
-    var appUrl = '${appUrl}';
-    var uid = '${userId}';
-    fetch(appUrl + '/api/active-store?uid=' + uid + '&t=' + Date.now())
+    fetch(appUrl + '/api/active-store?uid=${userId}&t=' + Date.now())
       .then(function(r){return r.json()})
       .then(function(d){
-        if (!d.domain) {
-          console.log('AmksaSwitchify: No active target store found.');
-          return;
-        }
+        if (!d.domain) return;
         
         var clean = function(h) { return h.replace(/^www\./, "").replace(/^https?:\/\//, "").toLowerCase().trim(); };
         var curr = clean(window.location.hostname);
         var target = clean(d.domain);
         var internal = clean(d.internalDomain || "");
 
-        console.log('AmksaSwitchify: Current ->', curr);
-        console.log('AmksaSwitchify: Target ->', target);
-
         if(target && curr !== target && curr !== internal){
-          console.log('AmksaSwitchify: REDIRECTING NOW!');
-          var path = window.location.pathname;
-          window.location.href = 'https://' + d.domain + path;
-        } else {
-          console.log('AmksaSwitchify: Store is active. No redirect needed.');
+          window.location.href = 'https://' + d.domain + window.location.pathname + window.location.search;
         }
       })
       .catch(function(e){console.error('AmksaSwitchify Error:',e)});
