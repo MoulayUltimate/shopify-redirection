@@ -710,7 +710,7 @@ export default function AdminPanel({ stores, session }: { stores: any[]; session
                       <span className="material-symbols-outlined text-amber-300 text-[24px]">support_agent</span>
                       <h3 className="font-h2 text-[18px]">Need a hand?</h3>
                     </div>
-                    <p className="text-body-md text-slate-300 max-w-md">
+                    <p className="text-body-md text-slate-300 max-w-[28rem]">
                       Our team is one email away. Whether it&apos;s a setup question, a billing query, or feedback — we
                       usually reply within a few hours on business days.
                     </p>
