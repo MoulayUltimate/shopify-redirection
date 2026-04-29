@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useRef, useState, useTransition } from 'react';
+import React, { useRef, useState, useTransition, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { addStore, deleteStore, toggleStoreStatus, updateStoreLimit, syncRevenue, syncAllRevenue, installScript, uninstallScript } from '@/app/actions';
 
 export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: string }) {
@@ -9,6 +10,18 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'stores' | 'setup'>('stores');
+  const router = useRouter();
+
+  // BACKGROUND AUTO-REFRESH: Keep the dashboard updated every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      startTransition(() => {
+        router.refresh();
+      });
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [router]);
 
   const handleSubmit = async (formData: FormData) => {
     setError(null);
