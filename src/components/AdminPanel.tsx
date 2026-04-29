@@ -79,8 +79,26 @@ export default function AdminPanel({ stores, session }: { stores: any[]; session
   const [activeTab, setActiveTab] = useState<'dashboard' | 'stores' | 'setup'>('stores');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isDark, setIsDark] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
   const router = useRouter();
+
+  // Sync dark-mode state with the class set by the pre-hydration script
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains('dark'));
+  }, []);
+
+  const toggleTheme = () => {
+    const next = !isDark;
+    setIsDark(next);
+    if (next) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('amksa-theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('amksa-theme', 'light');
+    }
+  };
 
   // BACKGROUND AUTO-REFRESH: keep the dashboard updated every 30 seconds
   useEffect(() => {
@@ -229,6 +247,14 @@ export default function AdminPanel({ stores, session }: { stores: any[]; session
             {error && <div className="text-xs font-bold text-error">✕ {error}</div>}
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors"
+              title={isDark ? 'Switch to light mode' : 'Switch to night mode'}
+              aria-label="Toggle theme"
+            >
+              <span className="material-symbols-outlined">{isDark ? 'light_mode' : 'dark_mode'}</span>
+            </button>
             <button className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors" title="Notifications">
               <span className="material-symbols-outlined">notifications</span>
             </button>
