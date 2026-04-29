@@ -334,7 +334,96 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                   <h3>Get Your API Credentials</h3>
                   <p>Choose the method that matches your Shopify Dashboard:</p>
                   
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem' }}>
+                  {activeTab === 'setup' && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                      <div className="section-header" style={{ padding: 0, marginBottom: '0.5rem' }}>
+                        <h3 style={{ fontSize: '1rem' }}>🛡️ Manual Installation (Recommended)</h3>
+                      </div>
+                      
+                      <div className="info-box" style={{ background: 'rgba(0,128,96,0.1)', color: '#008060', border: '1px solid #008060' }}>
+                        <p style={{ fontSize: '0.8rem' }}>If the "Install" button is blocked by your theme, copy this code and paste it into your <strong>theme.liquid</strong> file right before the <code>&lt;/body&gt;</code> tag.</p>
+                      </div>
+
+                      <div style={{ position: 'relative' }}>
+                        <pre style={{ 
+                          background: '#1e1e1e', 
+                          color: '#d4d4d4', 
+                          padding: '1.5rem', 
+                          borderRadius: '8px', 
+                          fontSize: '0.7rem', 
+                          overflowX: 'auto',
+                          border: '1px solid var(--border)'
+                        }}>
+                          {`<!-- AMKSASWITCHIFY START -->
+<script>
+  (function() {
+    var appUrl = 'https://amksaswitchify.com';
+    var uid = '${stores[0]?.userId || "YOUR_USER_ID"}';
+    fetch(appUrl + '/api/active-store?uid=' + uid + '&t=' + Date.now())
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if (!d.domain) return;
+        var clean = function(h) { return h.replace(/^www\\./, "").replace(/^https?:\\/\\//, "").toLowerCase().trim(); };
+        var curr = clean(window.location.hostname);
+        var target = clean(d.domain);
+        var internal = clean(d.internalDomain || "");
+        if(target && curr !== target && curr !== internal){
+          window.location.href = 'https://' + d.domain + window.location.pathname + window.location.search;
+        }
+      })
+      .catch(function(e){console.error('AmksaSwitchify Error:',e)});
+  })();
+</script>
+<!-- AMKSASWITCHIFY END -->`}
+                        </pre>
+                        <button 
+                          className="btn btn-ghost btn-sm" 
+                          style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(255,255,255,0.1)' }}
+                          onClick={() => {
+                            navigator.clipboard.writeText(`<!-- AMKSASWITCHIFY START -->
+<script>
+  (function() {
+    var appUrl = 'https://amksaswitchify.com';
+    var uid = '${stores[0]?.userId || "YOUR_USER_ID"}';
+    fetch(appUrl + '/api/active-store?uid=' + uid + '&t=' + Date.now())
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if (!d.domain) return;
+        var clean = function(h) { return h.replace(/^www\\./, "").replace(/^https?:\\/\\//, "").toLowerCase().trim(); };
+        var curr = clean(window.location.hostname);
+        var target = clean(d.domain);
+        var internal = clean(d.internalDomain || "");
+        if(target && curr !== target && curr !== internal){
+          window.location.href = 'https://' + d.domain + window.location.pathname + window.location.search;
+        }
+      })
+      .catch(function(e){console.error('AmksaSwitchify Error:',e)});
+  })();
+</script>
+<!-- AMKSASWITCHIFY END -->`);
+                            setMessage('Code copied to clipboard!');
+                            setTimeout(() => setMessage(null), 3000);
+                          }}
+                        >
+                          📋 Copy
+                        </button>
+                      </div>
+
+                      <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '12px' }}>
+                        <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.5rem' }}>STEPS TO INSTALL:</p>
+                        <ol style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
+                          <li>Copy the code above.</li>
+                          <li>Open your Shopify Admin → <strong>Online Store</strong> → <strong>Themes</strong>.</li>
+                          <li>Click <strong>Edit Code</strong> (under the "..." menu).</li>
+                          <li>Find the file <strong>layout/theme.liquid</strong>.</li>
+                          <li>Scroll to the very bottom and paste the code right before <code>&lt;/body&gt;</code>.</li>
+                          <li>Click <strong>Save</strong>.</li>
+                        </ol>
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem' }}>
                     <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '12px' }}>
                       <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.5rem' }}>NEW: UNIFIED DASHBOARD</p>
                       <ol style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
