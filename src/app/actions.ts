@@ -277,21 +277,33 @@ export async function installScript(storeId: string, appUrl: string) {
     const snippet = `${SCRIPT_MARKER_START}
 {% if template == 'product' %}
 <script>
-  console.log('Rotator: Checking status...');
-  fetch('${appUrl}/api/active-store?uid=${userId}&t=' + Date.now())
-    .then(function(r){return r.json()})
-    .then(function(d){
-      const curr = window.location.hostname;
-      console.log('Rotator: Current Host:', curr);
-      console.log('Rotator: Target Domain:', d.domain);
-      if(d.domain && curr !== d.domain && curr !== d.internalDomain){
-        console.log('Rotator: Redirecting to', d.domain);
-        window.location.href='https://'+d.domain+'/products/{{product.handle}}';
-      } else {
-        console.log('Rotator: Stay on current store (Match found or No limit hit)');
-      }
-    })
-    .catch(function(e){console.error('Rotator Error:',e)});
+  (function() {
+    console.log('AmksaSwitchify: Checking rotation...');
+    fetch('${appUrl}/api/active-store?uid=${userId}&t=' + Date.now())
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if (!d.domain) {
+          console.log('AmksaSwitchify: No active target store found.');
+          return;
+        }
+        
+        const clean = function(h) { return h.replace(/^www\./, "").replace(/^https?:\/\//, "").toLowerCase(); };
+        const curr = clean(window.location.hostname);
+        const target = clean(d.domain);
+        const internal = clean(d.internalDomain || "");
+
+        console.log('AmksaSwitchify: Current ->', curr);
+        console.log('AmksaSwitchify: Target ->', target);
+
+        if(target && curr !== target && curr !== internal){
+          console.log('AmksaSwitchify: REDIRECTING!');
+          window.location.replace('https://' + d.domain + '/products/{{product.handle}}');
+        } else {
+          console.log('AmksaSwitchify: Already on active store.');
+        }
+      })
+      .catch(function(e){console.error('AmksaSwitchify Error:',e)});
+  })();
 </script>
 {% endif %}
 ${SCRIPT_MARKER_END}`;
