@@ -1,55 +1,108 @@
 'use client';
 
-import React, { useState, useRef, useTransition } from 'react';
-import { 
-  addStore, 
-  deleteStore, 
-  syncRevenue, 
-  toggleStoreStatus, 
+import React, { useState, useRef, useTransition, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import {
+  addStore,
+  deleteStore,
+  syncRevenue,
+  syncAllRevenue,
+  toggleStoreStatus,
   updateStoreLimit,
   installScript,
-  uninstallScript
+  uninstallScript,
 } from '@/app/actions';
 
-export default function AdminPanel({ stores, session }: { stores: any[], session: any }) {
+export default function AdminPanel({ stores, session }: { stores: any[]; session: any }) {
   const [isPending, startTransition] = useTransition();
-  const [activeTab, setActiveTab] = useState('stores');
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'stores' | 'setup'>('stores');
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+  const router = useRouter();
+
+  // BACKGROUND AUTO-REFRESH: keep the dashboard updated every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      startTransition(() => {
+        router.refresh();
+      });
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [router]);
 
   const totalRevenue = stores.reduce((sum, s) => sum + s.currentRevenue, 0);
   const liveStores = stores.filter(s => s.isActive && s.currentRevenue < s.revenueLimit).length;
   const hitStores = stores.filter(s => s.isActive && s.currentRevenue >= s.revenueLimit).length;
+  const pausedStores = stores.length - liveStores - hitStores;
+
+  // The first live store (lowest createdAt) is the one currently receiving traffic
+  const receivingStore = stores.find(s => s.isActive && s.currentRevenue < s.revenueLimit);
+
+  const flash = (msg: string, isError = false) => {
+    if (isError) {
+      setError(msg);
+      setMessage(null);
+    } else {
+      setMessage(msg);
+      setError(null);
+    }
+    setTimeout(() => { setMessage(null); setError(null); }, 4000);
+  };
 
   const handleSubmit = async (formData: FormData) => {
     setError(null);
     setMessage('Connecting to Shopify...');
     const result = await addStore(formData);
     if (result?.error) {
-      setError(result.error);
-      setMessage(null);
+      flash(result.error, true);
     } else {
-      setMessage('Store connected successfully!');
       formRef.current?.reset();
-      setTimeout(() => setMessage(null), 3000);
+      flash('Store added!');
     }
   };
 
-  const handleSync = async (id: string) => {
-    setMessage('Syncing revenue...');
-    const result = await syncRevenue(id);
-    if (result?.error) setError(result.error);
-    else setMessage('Revenue synced!');
-    setTimeout(() => setMessage(null), 2000);
+  const handleSync = (storeId: string) => {
+    startTransition(async () => {
+      setMessage('Syncing revenue...');
+      const result = await syncRevenue(storeId);
+      if (result?.error) flash(result.error, true);
+      else flash(`Revenue synced: $${result.revenue?.toFixed(2)} (${result.count} orders)`);
+    });
   };
 
-  const handleInstallScript = async (id: string) => {
-    setMessage('Installing script...');
-    const result = await installScript(id);
-    if (result.error) setError(result.error);
-    else setMessage('Script installed!');
-    setTimeout(() => setMessage(null), 3000);
+  const handleSyncAll = () => {
+    startTransition(async () => {
+      setMessage('Syncing all stores...');
+      await syncAllRevenue();
+      flash('All stores synced!');
+    });
+  };
+
+  const handleInstallScript = (storeId: string) => {
+    startTransition(async () => {
+      setMessage('Installing script...');
+      const result = await installScript(storeId);
+      if (result?.error) flash(result.error, true);
+      else flash('Redirect script installed!');
+    });
+  };
+
+  const handleUninstallScript = (storeId: string) => {
+    startTransition(async () => {
+      setMessage('Removing script...');
+      const result = await uninstallScript(storeId);
+      if (result?.error) flash(result.error, true);
+      else flash('Script removed from theme');
+    });
+  };
+
+  const handleUpdateLimit = (id: string, val: string) => {
+    const limit = parseFloat(val);
+    if (isNaN(limit)) return;
+    startTransition(async () => {
+      await updateStoreLimit(id, limit);
+    });
   };
 
   return (
@@ -61,32 +114,32 @@ export default function AdminPanel({ stores, session }: { stores: any[], session
           <p className="text-[11px] uppercase tracking-widest text-slate-500 font-semibold">Enterprise Control</p>
         </div>
         <nav className="flex-1 space-y-1">
-          <button 
+          <button
             onClick={() => setActiveTab('dashboard')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${activeTab === 'dashboard' ? 'bg-slate-50 text-slate-900 border-r-2 border-slate-900' : 'text-slate-500 hover:bg-slate-50'}`}
           >
             <span className="material-symbols-outlined text-[20px]">dashboard</span>
             <span className="font-medium text-sm">Dashboard</span>
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('stores')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${activeTab === 'stores' ? 'bg-slate-50 text-slate-900 border-r-2 border-slate-900' : 'text-slate-500 hover:bg-slate-50'}`}
           >
             <span className="material-symbols-outlined text-[20px]">storefront</span>
             <span className="font-medium text-sm">Store Management</span>
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab('setup')}
             className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 ${activeTab === 'setup' ? 'bg-slate-50 text-slate-900 border-r-2 border-slate-900' : 'text-slate-500 hover:bg-slate-50'}`}
           >
             <span className="material-symbols-outlined text-[20px]">help</span>
-            <span className="font-medium text-sm">Help Center</span>
+            <span className="font-medium text-sm">Setup Guide</span>
           </button>
         </nav>
         <div className="mt-auto pt-6 border-t border-slate-100 space-y-1">
           <div className="flex items-center gap-3 px-3 py-2">
             <div className="text-left">
-              <p className="text-xs font-bold text-slate-900 leading-none truncate w-32">{session.user.name}</p>
+              <p className="text-xs font-bold text-slate-900 leading-none truncate w-32">{session.user?.name || session.user?.email}</p>
               <p className="text-[10px] text-slate-500 font-medium">Enterprise Tier</p>
             </div>
           </div>
@@ -106,16 +159,20 @@ export default function AdminPanel({ stores, session }: { stores: any[], session
             {error && <div className="text-xs font-bold text-error">✕ {error}</div>}
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors"><span className="material-symbols-outlined">notifications</span></button>
-            <button className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors"><span className="material-symbols-outlined">settings</span></button>
+            <button className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors" title="Notifications">
+              <span className="material-symbols-outlined">notifications</span>
+            </button>
+            <button className="p-2 text-slate-500 hover:bg-slate-50 rounded-full transition-colors" title="Settings">
+              <span className="material-symbols-outlined">settings</span>
+            </button>
             <div className="h-8 w-px bg-slate-200 mx-2"></div>
             <div className="flex items-center gap-3 pl-2">
               <div className="text-right">
-                <p className="text-xs font-bold text-slate-900 leading-none">{session.user.name?.split(' ')[0]}</p>
-                <p className="text-[10px] text-slate-500 font-medium">Admin</p>
+                <p className="text-xs font-bold text-slate-900 leading-none">{session.user?.name?.split(' ')[0] || 'User'}</p>
+                <p className="text-[10px] text-slate-500 font-medium">Administrator</p>
               </div>
               <div className="w-8 h-8 rounded-full bg-slate-200 border border-slate-100 flex items-center justify-center font-bold text-slate-500 text-xs">
-                {session.user.name?.charAt(0)}
+                {(session.user?.name || session.user?.email || '?').charAt(0).toUpperCase()}
               </div>
             </div>
           </div>
@@ -123,7 +180,7 @@ export default function AdminPanel({ stores, session }: { stores: any[], session
 
         {/* Page Content */}
         <div className="max-w-[1280px] mx-auto px-container-padding py-xl space-y-xl">
-          
+
           {(activeTab === 'dashboard' || activeTab === 'stores') && (
             <>
               <div className="flex justify-between items-end">
@@ -131,6 +188,16 @@ export default function AdminPanel({ stores, session }: { stores: any[], session
                   <h2 className="font-h2 text-h2 text-on-surface">Store Management</h2>
                   <p className="text-body-md text-on-surface-variant">Configure and monitor your Shopify store integrations.</p>
                 </div>
+                {stores.length > 0 && (
+                  <button
+                    onClick={handleSyncAll}
+                    disabled={isPending}
+                    className="inline-flex items-center gap-2 bg-secondary text-white font-semibold py-2 px-4 rounded-lg hover:bg-secondary/90 transition-colors shadow-sm disabled:opacity-50"
+                  >
+                    <span className="material-symbols-outlined text-[18px]">sync</span>
+                    {isPending ? 'Syncing...' : 'Sync All Revenue'}
+                  </button>
+                )}
               </div>
 
               {/* Bento Layout: Add Store & Stats */}
@@ -149,21 +216,26 @@ export default function AdminPanel({ stores, session }: { stores: any[], session
                       </div>
                       <div className="col-span-2 md:col-span-1">
                         <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Shopify Domain</label>
-                        <div className="relative">
-                          <input name="domain" className="w-full bg-slate-50 border border-slate-200 rounded-lg pl-3 pr-28 py-2 text-body-md focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all" placeholder="urban-threads" required />
-                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium text-xs">.myshopify.com</span>
-                        </div>
+                        <input name="domain" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-body-md focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all" placeholder="my-store.myshopify.com" required />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Admin API Token (shpat_)</label>
+                        <input name="accessToken" type="password" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-body-md focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all" placeholder="If using legacy custom app" />
                       </div>
                       <div className="col-span-2 md:col-span-1">
-                        <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Admin API Token (shpat_)</label>
-                        <input name="accessToken" type="password" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-body-md focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all" placeholder="••••••••••••••••" required />
+                        <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">OR Client ID</label>
+                        <input name="clientId" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-body-md focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all" placeholder="New Dashboard ID" />
+                      </div>
+                      <div className="col-span-2 md:col-span-1">
+                        <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Client Secret (shpss_)</label>
+                        <input name="clientSecret" type="password" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-body-md focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all" placeholder="New Dashboard Secret" />
                       </div>
                       <div className="col-span-2 md:col-span-1">
                         <label className="block font-label-caps text-label-caps text-on-surface-variant mb-xs uppercase">Daily Revenue Limit ($)</label>
-                        <input name="revenueLimit" type="number" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-body-md focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all" placeholder="500" required />
+                        <input name="revenueLimit" type="number" defaultValue="500" className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-body-md focus:border-secondary focus:ring-1 focus:ring-secondary/20 outline-none transition-all" required />
                       </div>
-                      <div className="col-span-2 flex justify-end mt-sm">
-                        <button disabled={isPending} className="bg-slate-900 text-white font-semibold py-2 px-6 rounded-lg hover:bg-slate-800 transition-colors shadow-sm active:scale-[0.98]">
+                      <div className="col-span-2 md:col-span-1 flex items-end justify-end">
+                        <button disabled={isPending} className="bg-slate-900 text-white font-semibold py-2 px-6 rounded-lg hover:bg-slate-800 transition-colors shadow-sm active:scale-[0.98] disabled:opacity-50">
                           {isPending ? 'Connecting...' : 'Verify & Add Store'}
                         </button>
                       </div>
@@ -192,9 +264,11 @@ export default function AdminPanel({ stores, session }: { stores: any[], session
                       <div className="flex -space-x-2">
                         <div className="w-8 h-8 rounded-full bg-green-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-green-700">{liveStores}</div>
                         <div className="w-8 h-8 rounded-full bg-amber-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-amber-700">{hitStores}</div>
-                        <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400">{stores.length - liveStores - hitStores}</div>
+                        <div className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white flex items-center justify-center text-[10px] font-bold text-slate-400">{pausedStores}</div>
                       </div>
-                      <span className="text-body-sm font-medium text-slate-700">All gateways operational</span>
+                      <span className="text-body-sm font-medium text-slate-700">
+                        {receivingStore ? `Routing to ${receivingStore.name}` : 'No traffic destination'}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -204,122 +278,222 @@ export default function AdminPanel({ stores, session }: { stores: any[], session
               <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
                 <div className="px-lg py-md border-b border-slate-100 flex items-center justify-between bg-slate-50/30">
                   <h3 className="font-h2 text-[18px] text-on-surface">Your Stores</h3>
-                  <div className="flex gap-2">
-                    <button onClick={() => window.location.reload()} className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 flex items-center gap-1.5 hover:bg-white transition-colors">
-                      <span className="material-symbols-outlined text-[16px]">refresh</span>
-                      Refresh
-                    </button>
+                  <button onClick={() => router.refresh()} className="px-3 py-1.5 border border-slate-200 rounded-lg text-xs font-semibold text-slate-600 flex items-center gap-1.5 hover:bg-white transition-colors">
+                    <span className="material-symbols-outlined text-[16px]">refresh</span>
+                    Refresh
+                  </button>
+                </div>
+                {stores.length === 0 ? (
+                  <div className="p-xl text-center">
+                    <p className="text-body-md text-on-surface font-semibold">No stores yet</p>
+                    <p className="text-body-sm text-on-surface-variant mt-xs">Add your first Shopify store above to get started</p>
                   </div>
-                </div>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead>
-                      <tr className="bg-slate-50/50">
-                        <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 uppercase">Store Name</th>
-                        <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 uppercase">Revenue (24H)</th>
-                        <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 uppercase">Status</th>
-                        <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 uppercase text-center">Progress</th>
-                        <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 text-right uppercase">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100">
-                      {stores.map((store: any) => {
-                        const limitHit = store.currentRevenue >= store.revenueLimit;
-                        const pct = Math.min(100, (store.currentRevenue / store.revenueLimit) * 100);
-                        const isLive = store.isActive && !limitHit;
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left border-collapse">
+                      <thead>
+                        <tr className="bg-slate-50/50">
+                          <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 uppercase">Store Name</th>
+                          <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 uppercase">Revenue (24H)</th>
+                          <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 uppercase">Status</th>
+                          <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 uppercase text-center">Limit / Progress</th>
+                          <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 text-right uppercase">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100">
+                        {stores.map((store: any) => {
+                          const limitHit = store.currentRevenue >= store.revenueLimit;
+                          const pct = Math.min(100, (store.currentRevenue / store.revenueLimit) * 100);
+                          const isLive = store.isActive && !limitHit;
+                          const isReceiving = receivingStore?.id === store.id;
+                          const needsConnect = store.clientId && !store.accessToken;
 
-                        return (
-                          <tr key={store.id} className="hover:bg-blue-50/30 transition-colors group">
-                            <td className="px-lg py-4">
-                              <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400">
-                                  <span className="material-symbols-outlined">shopping_bag</span>
+                          return (
+                            <tr key={store.id} className="hover:bg-blue-50/30 transition-colors group">
+                              <td className="px-lg py-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400">
+                                    <span className="material-symbols-outlined">shopping_bag</span>
+                                  </div>
+                                  <div>
+                                    <p className="font-semibold text-slate-900 text-sm">{store.name}</p>
+                                    <p className="text-[11px] text-slate-400 font-mono">{store.domain}</p>
+                                  </div>
                                 </div>
-                                <div>
-                                  <p className="font-semibold text-slate-900 text-sm">{store.name}</p>
-                                  <p className="text-[11px] text-slate-400 font-mono">{store.domain}</p>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-lg py-4">
-                              <span className="font-mono-data text-mono-data text-slate-900">${store.currentRevenue.toFixed(2)}</span>
-                            </td>
-                            <td className="px-lg py-4">
-                              {isLive ? (
-                                <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-green-50 text-green-700 w-fit">
-                                  <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
-                                  <span className="text-[11px] font-bold uppercase tracking-tight">Live</span>
-                                </div>
-                              ) : limitHit ? (
-                                <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-red-50 text-red-700 w-fit border border-red-100">
-                                  <div className="w-2 h-2 rounded-full bg-red-600"></div>
-                                  <span className="text-[11px] font-bold uppercase tracking-tight">Limit Hit</span>
-                                </div>
-                              ) : (
-                                <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-slate-100 text-slate-600 w-fit">
-                                  <div className="w-2 h-2 rounded-full bg-slate-400"></div>
-                                  <span className="text-[11px] font-bold uppercase tracking-tight">Paused</span>
-                                </div>
-                              )}
-                            </td>
-                            <td className="px-lg py-4">
-                              <div className="flex flex-col items-center gap-1">
-                                <div className="w-32 bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                                  <div 
-                                    className={`h-full transition-all duration-500 ${limitHit ? 'bg-red-500' : 'bg-secondary'}`} 
-                                    style={{ width: `${pct}%` }}
-                                  ></div>
-                                </div>
-                                <p className={`text-[10px] font-medium ${limitHit ? 'text-red-500 font-bold' : 'text-slate-400'}`}>
-                                  ${store.currentRevenue.toFixed(0)} / ${store.revenueLimit}
-                                </p>
-                              </div>
-                            </td>
-                            <td className="px-lg py-4 text-right">
-                              <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                {!store.accessToken && (
-                                  <a href={`/api/shopify/auth?shop=${store.domain}`} className="px-2 py-1 bg-green-600 text-white text-[10px] font-bold rounded uppercase mr-2 no-underline">Connect</a>
+                              </td>
+                              <td className="px-lg py-4">
+                                <span className={`font-mono-data text-mono-data ${limitHit ? 'text-red-600' : 'text-slate-900'}`}>
+                                  ${store.currentRevenue.toFixed(2)}
+                                </span>
+                                {!limitHit && store.isActive && (
+                                  <p className="text-[10px] text-slate-400 mt-1">
+                                    ${Math.max(0, store.revenueLimit - store.currentRevenue).toFixed(2)} remaining
+                                  </p>
                                 )}
-                                <button onClick={() => handleSync(store.id)} className="p-1.5 text-slate-400 hover:text-secondary hover:bg-blue-50 rounded" title="Sync"><span className="material-symbols-outlined text-[18px]">sync</span></button>
-                                <button onClick={() => handleInstallScript(store.id)} className="p-1.5 text-slate-400 hover:text-secondary hover:bg-blue-50 rounded" title="Install"><span className="material-symbols-outlined text-[18px]">add_circle</span></button>
-                                <button onClick={() => startTransition(async () => { await toggleStoreStatus(store.id, store.isActive); })} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded" title={store.isActive ? "Pause" : "Resume"}><span className="material-symbols-outlined text-[18px]">{store.isActive ? 'pause' : 'play_arrow'}</span></button>
-                                <button onClick={() => { if(confirm('Delete store?')) startTransition(async () => { await deleteStore(store.id); }); }} className="p-1.5 text-slate-400 hover:text-error hover:bg-red-50 rounded" title="Delete"><span className="material-symbols-outlined text-[18px]">delete</span></button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
+                              </td>
+                              <td className="px-lg py-4">
+                                <div className="flex flex-col gap-1">
+                                  {isLive ? (
+                                    <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-green-50 text-green-700 w-fit">
+                                      <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                      <span className="text-[11px] font-bold uppercase tracking-tight">Live</span>
+                                    </div>
+                                  ) : limitHit ? (
+                                    <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-red-50 text-red-700 w-fit border border-red-100">
+                                      <div className="w-2 h-2 rounded-full bg-red-600"></div>
+                                      <span className="text-[11px] font-bold uppercase tracking-tight">Limit Hit</span>
+                                    </div>
+                                  ) : (
+                                    <div className="flex items-center gap-2 px-2 py-1 rounded-full bg-slate-100 text-slate-600 w-fit">
+                                      <div className="w-2 h-2 rounded-full bg-slate-400"></div>
+                                      <span className="text-[11px] font-bold uppercase tracking-tight">Paused</span>
+                                    </div>
+                                  )}
+                                  {isReceiving && (
+                                    <div className="flex items-center gap-1 text-[10px] font-bold text-green-700">
+                                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                                      Receiving Traffic
+                                    </div>
+                                  )}
+                                  {limitHit && store.isActive && receivingStore && (
+                                    <div className="text-[10px] font-semibold text-secondary">
+                                      → Forwarding to {receivingStore.name}
+                                    </div>
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-lg py-4">
+                                <div className="flex flex-col items-center gap-1">
+                                  <div className="w-32 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                                    <div
+                                      className={`h-full transition-all duration-500 ${limitHit ? 'bg-red-500' : 'bg-secondary'}`}
+                                      style={{ width: `${pct}%` }}
+                                    ></div>
+                                  </div>
+                                  <div className="flex items-center gap-1 text-[10px] text-slate-500">
+                                    <span>${store.currentRevenue.toFixed(0)} / $</span>
+                                    <input
+                                      type="number"
+                                      defaultValue={store.revenueLimit}
+                                      onBlur={(e) => handleUpdateLimit(store.id, e.target.value)}
+                                      className="w-14 bg-transparent border-b border-dashed border-slate-300 text-[10px] text-slate-700 font-semibold text-center focus:outline-none focus:border-secondary"
+                                    />
+                                  </div>
+                                </div>
+                              </td>
+                              <td className="px-lg py-4 text-right">
+                                <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                  {needsConnect ? (
+                                    <a
+                                      href={`/api/shopify/auth?shop=${store.domain}&clientId=${store.clientId}&storeId=${store.id}`}
+                                      className="px-2 py-1 bg-green-600 text-white text-[10px] font-bold rounded uppercase mr-2 no-underline inline-flex items-center gap-1"
+                                    >
+                                      <span className="material-symbols-outlined text-[14px]">link</span>
+                                      Connect
+                                    </a>
+                                  ) : (
+                                    <>
+                                      <button onClick={() => handleSync(store.id)} disabled={isPending} className="p-1.5 text-slate-400 hover:text-secondary hover:bg-blue-50 rounded transition-colors" title="Sync revenue">
+                                        <span className="material-symbols-outlined text-[18px]">sync</span>
+                                      </button>
+                                      <button onClick={() => handleInstallScript(store.id)} disabled={isPending} className="p-1.5 text-slate-400 hover:text-secondary hover:bg-blue-50 rounded transition-colors" title="Install redirect script">
+                                        <span className="material-symbols-outlined text-[18px]">download</span>
+                                      </button>
+                                      <button onClick={() => handleUninstallScript(store.id)} disabled={isPending} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors" title="Remove redirect script">
+                                        <span className="material-symbols-outlined text-[18px]">delete_sweep</span>
+                                      </button>
+                                    </>
+                                  )}
+                                  <button
+                                    onClick={() => startTransition(async () => { await toggleStoreStatus(store.id, store.isActive); })}
+                                    disabled={isPending}
+                                    className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors"
+                                    title={store.isActive ? 'Pause' : 'Resume'}
+                                  >
+                                    <span className="material-symbols-outlined text-[18px]">{store.isActive ? 'pause' : 'play_arrow'}</span>
+                                  </button>
+                                  <button
+                                    onClick={() => { if (confirm('Delete store?')) startTransition(async () => { await deleteStore(store.id); }); }}
+                                    disabled={isPending}
+                                    className="p-1.5 text-slate-400 hover:text-error hover:bg-red-50 rounded transition-colors"
+                                    title="Delete"
+                                  >
+                                    <span className="material-symbols-outlined text-[18px]">delete</span>
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
               </div>
             </>
           )}
 
           {activeTab === 'setup' && (
             <div className="bg-white border border-outline-variant rounded-xl shadow-sm p-lg space-y-lg">
-              <h3 className="font-h2 text-h2 text-on-surface">Setup Instructions</h3>
-              <div className="space-y-6">
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold">1</div>
-                  <div className="space-y-1">
-                    <p className="font-bold text-slate-900">Create Shopify App</p>
-                    <p className="text-sm text-slate-500">Go to Settings → Apps → Develop apps → Create an app.</p>
+              <div>
+                <h2 className="font-h2 text-h2 text-on-surface">Setup Guide</h2>
+                <p className="text-body-md text-on-surface-variant">Follow these 3 steps to activate revenue-based rotation.</p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-gutter">
+                <div className="border border-outline-variant rounded-xl p-lg bg-surface-container-low">
+                  <div className="flex items-center gap-3 mb-md">
+                    <span className="w-7 h-7 rounded-full bg-secondary text-white flex items-center justify-center text-sm font-bold">1</span>
+                    <h3 className="font-h2 text-[16px] text-on-surface">Create Shopify App</h3>
                   </div>
+                  <ol className="text-body-sm text-on-surface-variant space-y-1 list-decimal pl-4">
+                    <li>Shopify Admin → <strong>Settings</strong></li>
+                    <li>Click <strong>Apps and sales channels</strong></li>
+                    <li>Click <strong>Develop apps</strong></li>
+                    <li>Click <strong>Create an app</strong></li>
+                    <li>Name it <code className="bg-slate-100 px-1 rounded">Amksa Rotator</code></li>
+                  </ol>
                 </div>
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold">2</div>
-                  <div className="space-y-1">
-                    <p className="font-bold text-slate-900">Set Scopes</p>
-                    <p className="text-sm text-slate-500">Select read_orders, read_themes, write_themes.</p>
+
+                <div className="border border-outline-variant rounded-xl p-lg bg-surface-container-low">
+                  <div className="flex items-center gap-3 mb-md">
+                    <span className="w-7 h-7 rounded-full bg-secondary text-white flex items-center justify-center text-sm font-bold">2</span>
+                    <h3 className="font-h2 text-[16px] text-on-surface">Configure Access</h3>
                   </div>
+                  <ol className="text-body-sm text-on-surface-variant space-y-1 list-decimal pl-4">
+                    <li>Click <strong>Configure Admin API scopes</strong></li>
+                    <li>Select: <code className="bg-slate-100 px-1 rounded">read_orders</code>, <code className="bg-slate-100 px-1 rounded">read_themes</code>, <code className="bg-slate-100 px-1 rounded">write_themes</code></li>
+                    <li>Add Redirect URL: <code className="bg-slate-100 px-1 rounded text-[11px] block mt-1">https://amksaswitchify.com/api/shopify/callback</code></li>
+                    <li>Save and <strong>Install App</strong></li>
+                  </ol>
                 </div>
-                <div className="flex gap-4">
-                  <div className="w-8 h-8 rounded-full bg-secondary text-white flex items-center justify-center font-bold">3</div>
-                  <div className="space-y-1">
-                    <p className="font-bold text-slate-900">Connect & Install</p>
-                    <p className="text-sm text-slate-500">Paste your token, click "Connect", then click "Install" icon in the table.</p>
-                  </div>
+              </div>
+
+              <div className="border border-outline-variant rounded-xl p-lg bg-surface-container-low">
+                <div className="flex items-center gap-3 mb-md">
+                  <span className="w-7 h-7 rounded-full bg-secondary text-white flex items-center justify-center text-sm font-bold">3</span>
+                  <h3 className="font-h2 text-[16px] text-on-surface">Connect & Activate</h3>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-md text-body-sm text-on-surface-variant">
+                  <ul className="list-disc pl-4 space-y-1">
+                    <li>Copy your <strong>Client ID</strong> and <strong>Secret</strong> from the API Credentials tab.</li>
+                    <li>Open <strong>Store Management</strong> here and click <strong>Connect</strong>.</li>
+                  </ul>
+                  <ul className="list-disc pl-4 space-y-1">
+                    <li>Once connected, click the <strong>Install</strong> icon on your store row.</li>
+                    <li>Our engine will <strong>automatically</strong> handle redirect logic across all themes.</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="border border-outline-variant rounded-xl p-lg">
+                <h3 className="font-h2 text-[16px] text-on-surface mb-md">Action Icon Reference</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-md text-body-sm text-on-surface-variant">
+                  <p className="flex items-center gap-2"><span className="material-symbols-outlined text-secondary text-[18px]">sync</span><strong>Sync</strong> — Pulls revenue & primary domain</p>
+                  <p className="flex items-center gap-2"><span className="material-symbols-outlined text-secondary text-[18px]">download</span><strong>Install</strong> — Injects redirect script</p>
+                  <p className="flex items-center gap-2"><span className="material-symbols-outlined text-amber-600 text-[18px]">delete_sweep</span><strong>Remove</strong> — Uninstalls the script</p>
+                  <p className="flex items-center gap-2"><span className="material-symbols-outlined text-amber-600 text-[18px]">pause</span><strong>Pause</strong> — Stop traffic to store</p>
+                  <p className="flex items-center gap-2"><span className="material-symbols-outlined text-error text-[18px]">delete</span><strong>Delete</strong> — Remove from rotator</p>
                 </div>
               </div>
             </div>
