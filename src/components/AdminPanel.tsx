@@ -196,6 +196,15 @@ export default function AdminPanel({ stores, session }: { stores: any[]; session
             <span className="material-symbols-outlined text-[20px]">help</span>
             <span className="font-medium text-sm">Setup Guide</span>
           </button>
+          {session.user?.email === 'remoymak@gmail.com' && (
+            <a
+              href="/admin"
+              className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 text-amber-700 hover:bg-amber-50 mt-4 border border-amber-200 bg-amber-50/40"
+            >
+              <span className="material-symbols-outlined text-[20px]">admin_panel_settings</span>
+              <span className="font-medium text-sm">Master View</span>
+            </a>
+          )}
         </nav>
         <div className="mt-auto pt-6 border-t border-slate-100 space-y-1">
           <div className="flex items-center gap-3 px-3 py-2">
