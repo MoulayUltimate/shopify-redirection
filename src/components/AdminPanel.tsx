@@ -306,7 +306,17 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                             >
                               {store.isActive ? '⏸' : '▶️'} <span className="btn-text">{store.isActive ? 'Pause' : 'Resume'}</span>
                             </button>
-                            <button onClick={() => { if(confirm('Delete store?')) startTransition(() => deleteStore(store.id)); }} className="btn btn-ghost btn-sm btn-delete" disabled={isPending}>
+                            <button 
+                              onClick={() => { 
+                                if(confirm('Delete store?')) {
+                                  startTransition(async () => {
+                                    await deleteStore(store.id);
+                                  });
+                                }
+                              }} 
+                              className="btn btn-ghost btn-sm btn-delete" 
+                              disabled={isPending}
+                            >
                               🗑️ <span className="btn-text">Delete</span>
                             </button>
                           </div>
