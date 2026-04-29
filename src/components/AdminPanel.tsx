@@ -222,9 +222,24 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                           </div>
                         </td>
                         <td>
-                          <span className={`badge ${isLive ? 'badge-green' : limitHit ? 'badge-red' : 'badge-yellow'}`}>
-                            {isLive ? '● Live' : limitHit ? '● Limit Hit' : '● Paused'}
-                          </span>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span className={`badge ${store.isActive && !limitHit ? 'badge-green' : limitHit ? 'badge-red' : 'badge-yellow'}`}>
+                              {store.isActive && !limitHit ? 'Live' : limitHit ? 'Limit Hit' : 'Paused'}
+                            </span>
+                            
+                            {/* Traffic Flow Indicators */}
+                            {store.isActive && !limitHit && stores.findIndex(s => s.isActive && s.currentRevenue < s.revenueLimit) === stores.indexOf(store) && (
+                              <div style={{ fontSize: '0.65rem', color: '#008060', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 700 }}>
+                                <span className="pulse-dot"></span> 📡 Receiving Traffic
+                              </div>
+                            )}
+                            
+                            {limitHit && store.isActive && stores.find(s => s.isActive && s.currentRevenue < s.revenueLimit) && (
+                              <div style={{ fontSize: '0.65rem', color: 'var(--accent)', fontWeight: 600 }}>
+                                ➡️ Forwarding to: {stores.find(s => s.isActive && s.currentRevenue < s.revenueLimit)?.name}
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td>
                           <div className="actions-cell">
