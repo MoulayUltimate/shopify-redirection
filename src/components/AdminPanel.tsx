@@ -13,6 +13,67 @@ import {
   uninstallScript,
 } from '@/app/actions';
 
+type Tone = 'blue' | 'amber' | 'red' | 'green-solid';
+
+const toneClasses: Record<Tone, string> = {
+  blue: 'text-slate-500 hover:text-secondary hover:bg-blue-50',
+  amber: 'text-slate-500 hover:text-amber-600 hover:bg-amber-50',
+  red: 'text-slate-500 hover:text-red-600 hover:bg-red-50',
+  'green-solid': 'bg-green-600 text-white hover:bg-green-700 px-3',
+};
+
+interface ActionBtnProps {
+  icon: string;
+  label: string;
+  hint: string;
+  tone: Tone;
+  disabled?: boolean;
+  onClick?: () => void;
+  as?: 'button' | 'a';
+  href?: string;
+}
+
+function ActionBtn({ icon, label, hint, tone, disabled, onClick, as = 'button', href }: ActionBtnProps) {
+  const base = `relative inline-flex items-center justify-center gap-1 h-8 min-w-8 rounded-lg border border-transparent transition-colors disabled:opacity-50 disabled:pointer-events-none ${toneClasses[tone]}`;
+  const tooltip = (
+    <span
+      role="tooltip"
+      className="pointer-events-none absolute top-full right-0 mt-2 z-30 hidden group-hover/btn:block whitespace-nowrap bg-slate-900 text-white text-[11px] leading-tight px-2.5 py-1.5 rounded-md shadow-lg"
+    >
+      <span className="block font-bold">{label}</span>
+      <span className="block text-slate-300 font-normal text-[10px] mt-0.5">{hint}</span>
+      <span className="absolute -top-1 right-3 w-2 h-2 bg-slate-900 rotate-45"></span>
+    </span>
+  );
+
+  if (as === 'a' && href) {
+    return (
+      <span className="relative group/btn">
+        <a href={href} className={`${base} px-3 text-[11px] font-bold uppercase tracking-wider`} aria-label={label}>
+          <span className="material-symbols-outlined text-[16px]">{icon}</span>
+          <span>Connect</span>
+        </a>
+        {tooltip}
+      </span>
+    );
+  }
+
+  return (
+    <span className="relative group/btn">
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={label}
+        className={base + ' px-1.5'}
+      >
+        <span className="material-symbols-outlined text-[18px]">{icon}</span>
+      </button>
+      {tooltip}
+    </span>
+  );
+}
+
 export default function AdminPanel({ stores, session }: { stores: any[]; session: any }) {
   const [isPending, startTransition] = useTransition();
   const [activeTab, setActiveTab] = useState<'dashboard' | 'stores' | 'setup'>('stores');
@@ -382,44 +443,61 @@ export default function AdminPanel({ stores, session }: { stores: any[]; session
                                 </div>
                               </td>
                               <td className="px-lg py-4 text-right">
-                                <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="flex items-center justify-end gap-1.5">
                                   {needsConnect ? (
-                                    <a
+                                    <ActionBtn
+                                      as="a"
                                       href={`/api/shopify/auth?shop=${store.domain}&clientId=${store.clientId}&storeId=${store.id}`}
-                                      className="px-2 py-1 bg-green-600 text-white text-[10px] font-bold rounded uppercase mr-2 no-underline inline-flex items-center gap-1"
-                                    >
-                                      <span className="material-symbols-outlined text-[14px]">link</span>
-                                      Connect
-                                    </a>
+                                      icon="link"
+                                      label="Connect Store"
+                                      hint="Authorize via Shopify OAuth flow"
+                                      tone="green-solid"
+                                      disabled={false}
+                                    />
                                   ) : (
                                     <>
-                                      <button onClick={() => handleSync(store.id)} disabled={isPending} className="p-1.5 text-slate-400 hover:text-secondary hover:bg-blue-50 rounded transition-colors" title="Sync revenue">
-                                        <span className="material-symbols-outlined text-[18px]">sync</span>
-                                      </button>
-                                      <button onClick={() => handleInstallScript(store.id)} disabled={isPending} className="p-1.5 text-slate-400 hover:text-secondary hover:bg-blue-50 rounded transition-colors" title="Install redirect script">
-                                        <span className="material-symbols-outlined text-[18px]">download</span>
-                                      </button>
-                                      <button onClick={() => handleUninstallScript(store.id)} disabled={isPending} className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors" title="Remove redirect script">
-                                        <span className="material-symbols-outlined text-[18px]">delete_sweep</span>
-                                      </button>
+                                      <ActionBtn
+                                        onClick={() => handleSync(store.id)}
+                                        disabled={isPending}
+                                        icon="sync"
+                                        label="Sync Revenue"
+                                        hint="Pull latest paid orders from Shopify"
+                                        tone="blue"
+                                      />
+                                      <ActionBtn
+                                        onClick={() => handleInstallScript(store.id)}
+                                        disabled={isPending}
+                                        icon="download"
+                                        label="Install Script"
+                                        hint="Inject redirect snippet into all themes"
+                                        tone="blue"
+                                      />
+                                      <ActionBtn
+                                        onClick={() => handleUninstallScript(store.id)}
+                                        disabled={isPending}
+                                        icon="delete_sweep"
+                                        label="Remove Script"
+                                        hint="Strip redirect snippet from all themes"
+                                        tone="amber"
+                                      />
                                     </>
                                   )}
-                                  <button
+                                  <ActionBtn
                                     onClick={() => startTransition(async () => { await toggleStoreStatus(store.id, store.isActive); })}
                                     disabled={isPending}
-                                    className="p-1.5 text-slate-400 hover:text-amber-600 hover:bg-amber-50 rounded transition-colors"
-                                    title={store.isActive ? 'Pause' : 'Resume'}
-                                  >
-                                    <span className="material-symbols-outlined text-[18px]">{store.isActive ? 'pause' : 'play_arrow'}</span>
-                                  </button>
-                                  <button
-                                    onClick={() => { if (confirm('Delete store?')) startTransition(async () => { await deleteStore(store.id); }); }}
+                                    icon={store.isActive ? 'pause' : 'play_arrow'}
+                                    label={store.isActive ? 'Pause Traffic' : 'Resume Traffic'}
+                                    hint={store.isActive ? 'Stop sending visitors here' : 'Start sending visitors here'}
+                                    tone="amber"
+                                  />
+                                  <ActionBtn
+                                    onClick={() => { if (confirm('Delete store? This cannot be undone.')) startTransition(async () => { await deleteStore(store.id); }); }}
                                     disabled={isPending}
-                                    className="p-1.5 text-slate-400 hover:text-error hover:bg-red-50 rounded transition-colors"
-                                    title="Delete"
-                                  >
-                                    <span className="material-symbols-outlined text-[18px]">delete</span>
-                                  </button>
+                                    icon="delete"
+                                    label="Delete Store"
+                                    hint="Permanently remove from rotator"
+                                    tone="red"
+                                  />
                                 </div>
                               </td>
                             </tr>
