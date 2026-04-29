@@ -50,6 +50,18 @@ export async function GET(req: Request) {
       internalDomain: activeStore.domain 
     } : { domain: null };
 
+    // Check if JSONP callback is requested
+    const callback = searchParams.get('callback');
+    if (callback) {
+      return new Response(`${callback}(${JSON.stringify(responseData)})`, {
+        status: 200,
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/javascript',
+        },
+      });
+    }
+
     return new Response(JSON.stringify(responseData), {
       status: 200,
       headers: {

@@ -356,24 +356,18 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                         }}>
                           {`<!-- AMKSASWITCHIFY START -->
 <script>
-  (function() {
-    var appUrl = 'https://amksaswitchify.com';
-    var uid = '${stores[0]?.userId || "YOUR_USER_ID"}';
-    fetch(appUrl + '/api/active-store?uid=' + uid + '&t=' + Date.now())
-      .then(function(r){return r.json()})
-      .then(function(d){
-        if (!d.domain) return;
-        var clean = function(h) { return h.replace(/^www\\./, "").replace(/^https?:\\/\\//, "").toLowerCase().trim(); };
-        var curr = clean(window.location.hostname);
-        var target = clean(d.domain);
-        var internal = clean(d.internalDomain || "");
-        if(target && curr !== target && curr !== internal){
-          window.location.href = 'https://' + d.domain + window.location.pathname + window.location.search;
-        }
-      })
-      .catch(function(e){console.error('AmksaSwitchify Error:',e)});
-  })();
+  function amksaRotate(d) {
+    if (!d.domain) return;
+    var clean = function(h) { return h.replace(/^www\\./, "").replace(/^https?:\\/\\//, "").toLowerCase().trim(); };
+    var curr = clean(window.location.hostname);
+    var target = clean(d.domain);
+    var internal = clean(d.internalDomain || "");
+    if(target && curr !== target && curr !== internal){
+      window.location.href = 'https://' + d.domain + window.location.pathname + window.location.search;
+    }
+  }
 </script>
+<script src="https://amksaswitchify.com/api/active-store?uid=${stores[0]?.userId || "YOUR_USER_ID"}&callback=amksaRotate&t=${Date.now()}"></script>
 <!-- AMKSASWITCHIFY END -->`}
                         </pre>
                         <button 
@@ -382,24 +376,18 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                           onClick={() => {
                             navigator.clipboard.writeText(`<!-- AMKSASWITCHIFY START -->
 <script>
-  (function() {
-    var appUrl = 'https://amksaswitchify.com';
-    var uid = '${stores[0]?.userId || "YOUR_USER_ID"}';
-    fetch(appUrl + '/api/active-store?uid=' + uid + '&t=' + Date.now())
-      .then(function(r){return r.json()})
-      .then(function(d){
-        if (!d.domain) return;
-        var clean = function(h) { return h.replace(/^www\\./, "").replace(/^https?:\\/\\//, "").toLowerCase().trim(); };
-        var curr = clean(window.location.hostname);
-        var target = clean(d.domain);
-        var internal = clean(d.internalDomain || "");
-        if(target && curr !== target && curr !== internal){
-          window.location.href = 'https://' + d.domain + window.location.pathname + window.location.search;
-        }
-      })
-      .catch(function(e){console.error('AmksaSwitchify Error:',e)});
-  })();
+  function amksaRotate(d) {
+    if (!d.domain) return;
+    var clean = function(h) { return h.replace(/^www\\./, "").replace(/^https?:\\/\\//, "").toLowerCase().trim(); };
+    var curr = clean(window.location.hostname);
+    var target = clean(d.domain);
+    var internal = clean(d.internalDomain || "");
+    if(target && curr !== target && curr !== internal){
+      window.location.href = 'https://' + d.domain + window.location.pathname + window.location.search;
+    }
+  }
 </script>
+<script src="https://amksaswitchify.com/api/active-store?uid=${stores[0]?.userId || "YOUR_USER_ID"}&callback=amksaRotate&t=${Date.now()}"></script>
 <!-- AMKSASWITCHIFY END -->`);
                             setMessage('Code copied to clipboard!');
                             setTimeout(() => setMessage(null), 3000);
