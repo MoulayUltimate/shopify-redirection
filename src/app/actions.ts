@@ -309,7 +309,13 @@ export async function installScript(storeId: string, appUrl: string) {
 </script>
 ${SCRIPT_MARKER_END}`;
 
-    themeContent = themeContent.replace('</head>', snippet + '\n</head>');
+    const headRegex = /<\/head>/i;
+    if (headRegex.test(themeContent)) {
+      themeContent = themeContent.replace(headRegex, snippet + '\n</head>');
+    } else {
+      // Fallback: just append to the end if </head> is missing
+      themeContent += '\n' + snippet;
+    }
 
     const updateRes = await fetch(`${apiBase}/themes/${mainTheme.id}/assets.json`, {
       method: 'PUT',
