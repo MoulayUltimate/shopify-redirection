@@ -279,7 +279,17 @@ export default function AdminPanel({ stores, session }: { stores: any[], session
                               </div>
                             </td>
                             <td className="px-6 py-4 text-right">
-                              <div className="flex items-center justify-end gap-1">
+                              <div className="flex items-center justify-end gap-2">
+                                {!store.accessToken && (
+                                  <a 
+                                    href={`/api/shopify/auth?shop=${store.domain}`} 
+                                    className="px-2 py-1 bg-green-600 text-white text-[10px] font-bold rounded uppercase hover:bg-green-700 transition-colors flex items-center gap-1 no-underline"
+                                    title="Authorize App"
+                                  >
+                                    <span className="material-symbols-outlined text-[12px]">link</span>
+                                    Connect
+                                  </a>
+                                )}
                                 <button onClick={() => handleSync(store.id)} className="p-1.5 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Sync Revenue">
                                   <span className="material-symbols-outlined text-[20px]">sync</span>
                                 </button>
@@ -339,10 +349,21 @@ export default function AdminPanel({ stores, session }: { stores: any[], session
                   <div className="flex gap-4">
                     <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">3</div>
                     <div className="space-y-2">
-                      <h4 className="font-bold text-slate-900">Connect and Install</h4>
+                      <h4 className="font-bold text-slate-900">Add Store Credentials</h4>
                       <p className="text-sm text-slate-500 leading-relaxed">
-                        Copy the Access Token and paste it into the "Add Store" form. Once added, click the <strong>📥 Install</strong> icon 
-                        in the table to automatically activate the rotation script on all your themes.
+                        Copy the <strong>Client ID</strong> and <strong>Secret</strong> from Shopify. 
+                        Paste them into the "Add Store" form above and click <strong>Verify & Add Store</strong>.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex gap-4">
+                    <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center font-bold">4</div>
+                    <div className="space-y-2">
+                      <h4 className="font-bold text-slate-900">Connect & Install</h4>
+                      <p className="text-sm text-slate-500 leading-relaxed">
+                        Find your store in the table and click the green <strong>Connect</strong> button. 
+                        Once authorized, click <strong>📥 Install</strong> to activate the rotator!
                       </p>
                     </div>
                   </div>

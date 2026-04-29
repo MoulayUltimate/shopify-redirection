@@ -242,7 +242,7 @@ export async function syncAllRevenue(providedUserId?: string) {
 const SCRIPT_MARKER_START = '<!-- STORE-ROTATOR-START -->';
 const SCRIPT_MARKER_END = '<!-- STORE-ROTATOR-END -->';
 
-export async function installScript(storeId: string, appUrl: string) {
+export async function installScript(storeId: string) {
   const userId = await getUserId();
   if (!userId) return { error: 'Not authenticated' };
 
