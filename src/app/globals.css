@@ -1,134 +1,40 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --primary: #000000;
-  --secondary: #0058be;
-  --background: #f8f9ff;
-  --surface: #ffffff;
-  --on-surface: #0b1c30;
-  --on-surface-variant: #45464d;
-  --outline-variant: #e2e8f0;
-  --accent: #0058be;
-  --green: #16a34a;
-  --red: #dc2626;
-  --border: #e2e8f0;
-}
+@layer base {
+  :root {
+    --background: 220 100% 99%;
+    --on-background: 213 63% 12%;
+    --surface: 0 0% 100%;
+    --on-surface: 213 63% 12%;
+    --primary: 0 0% 0%;
+    --on-primary: 0 0% 100%;
+    --secondary: 212 100% 37%;
+    --on-secondary: 0 0% 100%;
+    --outline-variant: 214 32% 91%;
+  }
 
-body {
-  background-color: var(--background);
-  color: var(--on-surface);
-  font-family: 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-h1, h2, h3, .font-h2 {
-  font-family: 'Manrope', sans-serif;
+  body {
+    @apply bg-background text-on-background antialiased font-body-md;
+  }
 }
 
 .material-symbols-outlined {
   font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-  vertical-align: middle;
 }
 
-/* Custom Component Styles */
-.sidebar-link {
-  display: flex;
-  items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
-  color: #64748b;
-  font-weight: 500;
-  font-size: 0.875rem;
-  transition: all 0.2s;
-  text-decoration: none;
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
 }
-
-.sidebar-link:hover {
-  background-color: #f8fafc;
-  color: #0f172a;
+::-webkit-scrollbar-track {
+  background: transparent;
 }
-
-.sidebar-link.active {
-  background-color: #f8fafc;
-  color: #0f172a;
-  border-right: 2px solid #0f172a;
-  border-radius: 0.5rem 0 0 0.5rem;
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
 }
-
-.card {
-  background: white;
-  border: 1px solid var(--border);
-  border-radius: 0.75rem;
-  overflow: hidden;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.btn-enterprise {
-  background: #0f172a;
-  color: white;
-  font-weight: 600;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.btn-enterprise:hover {
-  background: #1e293b;
-}
-
-.input-enterprise {
-  width: 100%;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 0.5rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  transition: all 0.2s;
-  outline: none;
-}
-
-.input-enterprise:focus {
-  border-color: var(--secondary);
-  box-shadow: 0 0 0 2px rgba(0, 88, 190, 0.1);
-}
-
-.badge-enterprise {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.6875rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.025em;
-  width: fit-content;
-}
-
-.badge-live { background: #f0fdf4; color: #15803d; }
-.badge-hit { background: #fef2f2; color: #b91c1c; border: 1px solid #fee2e2; }
-.badge-paused { background: #f1f5f9; color: #475569; }
-
-@keyframes pulse-custom {
-  0% { transform: scale(0.95); opacity: 1; }
-  50% { transform: scale(1.1); opacity: 0.7; }
-  100% { transform: scale(0.95); opacity: 1; }
-}
-
-.pulse-dot-enterprise {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background-color: currentColor;
-  animation: pulse-custom 2s infinite;
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
