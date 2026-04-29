@@ -338,162 +338,71 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
             <h2>📖 How to Connect Your Shopify Stores</h2>
           </div>
           <div className="section-body">
-            <div className="setup-guide">
+            <div className="setup-guide" style={{ padding: '1rem' }}>
+              
+              <div className="info-box" style={{ background: 'rgba(0,128,96,0.1)', color: '#008060', border: '1px solid #008060', marginBottom: '2rem' }}>
+                <p style={{ fontSize: '0.9rem' }}>Follow these 3 simple steps to activate your revenue-based rotation.</p>
+              </div>
 
-              {/* Step 1 */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
+                <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '1.5rem', borderRadius: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem' }}>
+                    <span style={{ background: 'var(--accent)', color: 'white', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800 }}>1</span>
+                    <h3 style={{ margin: 0, fontSize: '1rem', color: 'white' }}>CREATE SHOPIFY APP</h3>
+                  </div>
+                  <ol style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', paddingLeft: '1.2rem', lineHeight: '2' }}>
+                    <li>Go to Shopify Admin → <strong>Settings</strong></li>
+                    <li>Click <strong>Apps and sales channels</strong></li>
+                    <li>Click <strong>Develop apps</strong></li>
+                    <li>Click <strong>Create an app</strong></li>
+                    <li>Name it <code>Amksa Rotator</code></li>
+                  </ol>
+                </div>
+
+                <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '1.5rem', borderRadius: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem' }}>
+                    <span style={{ background: 'var(--accent)', color: 'white', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800 }}>2</span>
+                    <h3 style={{ margin: 0, fontSize: '1rem', color: 'white' }}>CONFIGURE ACCESS</h3>
+                  </div>
+                  <ol style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', paddingLeft: '1.2rem', lineHeight: '2' }}>
+                    <li>Click <strong>Configure Admin API scopes</strong></li>
+                    <li>Select: <code>read_orders</code>, <code>read_themes</code>, <code>write_themes</code></li>
+                    <li>In <strong>Configuration</strong>, add Redirect URL:<br/><code style={{ background: 'rgba(255,255,255,0.1)', padding: '4px 8px', borderRadius: '6px', fontSize: '0.7rem', display: 'inline-block', marginTop: '4px', color: 'var(--accent)' }}>https://amksaswitchify.com/api/shopify/callback</code></li>
+                    <li>Click <strong>Save</strong> and then <strong>Install App</strong></li>
+                  </ol>
+                </div>
+              </div>
+
+              <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '1.25rem' }}>
+                  <span style={{ background: 'var(--accent)', color: 'white', width: '28px', height: '28px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.9rem', fontWeight: 800 }}>3</span>
+                  <h3 style={{ margin: 0, fontSize: '1rem', color: 'white' }}>CONNECT & ACTIVATE</h3>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem' }}>
+                  <ul style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
+                    <li>Copy your <strong>Client ID</strong> and <strong>Secret</strong> from the "API Credentials" tab in Shopify.</li>
+                    <li>Go to the <strong>⚡ Stores</strong> tab here and click <strong>Connect</strong>.</li>
+                  </ul>
+                  <ul style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
+                    <li>Once connected, click <strong>📥 Install</strong> on your store.</li>
+                    <li>Our engine will <strong>Automatically</strong> handle the redirection logic for all your themes.</li>
+                  </ul>
+                </div>
+              </div>
+
               <div className="step">
-                <div className="step-number">1</div>
                 <div className="step-content">
-                  <h3>Get Your API Credentials</h3>
-                  <p>Choose the method that matches your Shopify Dashboard:</p>
-                  
-                  {activeTab === 'setup' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                      <div className="section-header" style={{ padding: 0, marginBottom: '0.5rem' }}>
-                        <h3 style={{ fontSize: '1rem' }}>🛡️ Manual Installation (Recommended)</h3>
-                      </div>
-                      
-                      <div className="info-box" style={{ background: 'rgba(0,128,96,0.1)', color: '#008060', border: '1px solid #008060' }}>
-                        <p style={{ fontSize: '0.8rem' }}>If the "Install" button is blocked by your theme, copy this code and paste it into your <strong>theme.liquid</strong> file right before the <code>&lt;/body&gt;</code> tag.</p>
-                      </div>
-
-                      <div style={{ position: 'relative' }}>
-                        <pre style={{ 
-                          background: '#1e1e1e', 
-                          color: '#d4d4d4', 
-                          padding: '1.5rem', 
-                          borderRadius: '8px', 
-                          fontSize: '0.7rem', 
-                          overflowX: 'auto',
-                          border: '1px solid var(--border)'
-                        }}>
-                          {`<!-- AMKSASWITCHIFY START -->
-<script>
-  function amksaRotate(d) {
-    if (!d.domain) return;
-    var clean = function(h) { return h.replace(/^www\\./, "").replace(/^https?:\\/\\//, "").toLowerCase().trim(); };
-    var curr = clean(window.location.hostname);
-    var target = clean(d.domain);
-    var internal = clean(d.internalDomain || "");
-    if(target && curr !== target && curr !== internal){
-      window.location.href = 'https://' + d.domain + window.location.pathname + window.location.search;
-    }
-  }
-</script>
-<script src="https://amksaswitchify.com/api/active-store?uid=${stores[0]?.userId || "YOUR_USER_ID"}&callback=amksaRotate&t=${Date.now()}"></script>
-<!-- AMKSASWITCHIFY END -->`}
-                        </pre>
-                        <button 
-                          className="btn btn-ghost btn-sm" 
-                          style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(255,255,255,0.1)' }}
-                          onClick={() => {
-                            navigator.clipboard.writeText(`<!-- AMKSASWITCHIFY START -->
-<script>
-  function amksaRotate(d) {
-    if (!d.domain) return;
-    var clean = function(h) { return h.replace(/^www\\./, "").replace(/^https?:\\/\\//, "").toLowerCase().trim(); };
-    var curr = clean(window.location.hostname);
-    var target = clean(d.domain);
-    var internal = clean(d.internalDomain || "");
-    if(target && curr !== target && curr !== internal){
-      window.location.href = 'https://' + d.domain + window.location.pathname + window.location.search;
-    }
-  }
-</script>
-<script src="https://amksaswitchify.com/api/active-store?uid=${stores[0]?.userId || "YOUR_USER_ID"}&callback=amksaRotate&t=${Date.now()}"></script>
-<!-- AMKSASWITCHIFY END -->`);
-                            setMessage('Code copied to clipboard!');
-                            setTimeout(() => setMessage(null), 3000);
-                          }}
-                        >
-                          📋 Copy
-                        </button>
-                      </div>
-
-                      <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '12px' }}>
-                        <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.5rem' }}>STEPS TO INSTALL:</p>
-                        <ol style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
-                          <li>Copy the code above.</li>
-                          <li>Open your Shopify Admin → <strong>Online Store</strong> → <strong>Themes</strong>.</li>
-                          <li>Click <strong>Edit Code</strong> (under the "..." menu).</li>
-                          <li>Find the file <strong>layout/theme.liquid</strong>.</li>
-                          <li>Scroll to the very bottom and paste the code right before <code>&lt;/body&gt;</code>.</li>
-                          <li>Click <strong>Save</strong>.</li>
-                        </ol>
-                      </div>
+                  <h3 style={{ color: 'var(--accent)' }}>Quick Icon Reference:</h3>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginTop: '1rem' }}>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                      <p>🔄 <strong>Sync</strong> — Updates revenue and domains</p>
+                      <p>📥 <strong>Install</strong> — Automatic script injection</p>
                     </div>
-                  )}
-
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1.5rem', marginTop: '1.5rem' }}>
-                    <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '12px' }}>
-                      <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.5rem' }}>NEW: UNIFIED DASHBOARD</p>
-                      <ol style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
-                        <li>Go to <strong>dev.shopify.com</strong> and click <strong>"Create app"</strong></li>
-                        <li>Go to <strong>"Access"</strong> and select: <code>read_orders</code>, <code>read_themes</code>, <code>write_themes</code></li>
-                        <li><strong>CRITICAL:</strong> In <strong>"Configuration"</strong>, add this Redirect URL:<br/><code style={{ background: 'rgba(0,0,0,0.2)', padding: '2px 4px', borderRadius: '4px' }}>https://amksaswitchify.com/api/shopify/callback</code></li>
-                        <li>Click <strong>"Release"</strong> in the top right</li>
-                        <li>In <strong>"Settings"</strong>, copy your <strong>Client ID</strong> and <strong>Secret</strong></li>
-                      </ol>
-                    </div>
-                    
-                    <div style={{ background: 'var(--bg-secondary)', border: '1px solid var(--border)', padding: '1rem', borderRadius: '12px' }}>
-                      <p style={{ color: 'var(--green)', fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.5rem' }}>LEGACY: CUSTOM APP</p>
-                      <ul style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', paddingLeft: '1rem', lineHeight: '1.5' }}>
-                        <li>Go to <strong>Store Settings → Apps</strong></li>
-                        <li>Click <strong>Develop Apps</strong> → <strong>Create App</strong></li>
-                        <li>Configure Admin API scopes</li>
-                        <li>Install & Copy <strong>Access Token</strong> (starts with <code>shpat_</code>)</li>
-                      </ul>
+                    <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                      <p>⏸ <strong>Pause</strong> — Stop traffic to this store</p>
+                      <p>🗑 <strong>Delete</strong> — Remove from rotator</p>
                     </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Step 2 */}
-              <div className="step">
-                <div className={`step-number ${stores.length > 0 ? 'done' : ''}`}>2</div>
-                <div className="step-content">
-                  <h3>Add the Store in the Stores Tab</h3>
-                  <p>
-                    Go to the <strong>⚡ Stores</strong> tab above and fill in the store name, its
-                    <code>.myshopify.com</code> domain, the access token you just copied, and the revenue limit.
-                  </p>
-                  {stores.length > 0 ? (
-                    <div className="info-box">✅ You have {stores.length} store(s) configured.</div>
-                  ) : (
-                    <div className="warning-box">⚠️ No stores added yet.</div>
-                  )}
-                </div>
-              </div>
-
-              {/* Step 3 */}
-              <div className="step">
-                <div className="step-number">3</div>
-                <div className="step-content">
-                  <h3>Click the Action Buttons</h3>
-                  <p>In the Stores tab, each store has icon buttons:</p>
-                  <table className="store-table" style={{ marginBottom: '0.75rem' }}>
-                    <tbody>
-                      <tr><td style={{ fontSize: '1.1rem', width: '40px' }}>🔄</td><td><strong>Sync Revenue</strong> — Reads all paid orders from Shopify and updates the revenue total</td></tr>
-                      <tr><td style={{ fontSize: '1.1rem' }}>📥</td><td><strong>Install Script</strong> — Automatically injects the redirect code into the store's theme (no manual editing!)</td></tr>
-                      <tr><td style={{ fontSize: '1.1rem' }}>📤</td><td><strong>Uninstall Script</strong> — Removes the redirect code from the theme</td></tr>
-                      <tr><td style={{ fontSize: '1.1rem' }}>⏸</td><td><strong>Pause/Resume</strong> — Temporarily stop or resume traffic to a store</td></tr>
-                      <tr><td style={{ fontSize: '1.1rem' }}>🗑</td><td><strong>Delete</strong> — Remove a store from the rotator</td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              {/* Step 4 */}
-              <div className="step">
-                <div className="step-number">4</div>
-                <div className="step-content">
-                  <h3>You're Done! 🎉</h3>
-                  <p>
-                    Once you've added your stores, synced their revenue, and installed the script —
-                    everything is automatic. When a store hits its limit, traffic redirects to the next
-                    available store. Come back here anytime to monitor or adjust.
-                  </p>
                 </div>
               </div>
 
