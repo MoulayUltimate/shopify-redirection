@@ -303,7 +303,17 @@ export default function AdminPanel({ stores, session }: { stores: any[], session
                                 >
                                   <span className="material-symbols-outlined text-[20px]">{store.isActive ? 'pause' : 'play_arrow'}</span>
                                 </button>
-                                <button onClick={() => { if(confirm('Delete store?')) startTransition(() => deleteStore(store.id)); }} className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" title="Delete">
+                                <button 
+                                  onClick={() => { 
+                                    if(confirm('Delete store?')) {
+                                      startTransition(async () => {
+                                        await deleteStore(store.id);
+                                      });
+                                    }
+                                  }} 
+                                  className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors" 
+                                  title="Delete"
+                                >
                                   <span className="material-symbols-outlined text-[20px]">delete</span>
                                 </button>
                               </div>
