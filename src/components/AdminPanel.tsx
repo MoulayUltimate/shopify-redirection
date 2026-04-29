@@ -298,10 +298,10 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                       <p style={{ color: 'var(--accent)', fontWeight: 700, fontSize: '0.8rem', marginBottom: '0.5rem' }}>NEW: UNIFIED DASHBOARD</p>
                       <ol style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', paddingLeft: '1.2rem', lineHeight: '1.8' }}>
                         <li>Go to <strong>dev.shopify.com</strong> and click <strong>"Create app"</strong></li>
-                        <li>Name it <em>"AmksaSwitchify"</em> and click <strong>Create</strong></li>
                         <li>Go to <strong>"Access"</strong> and select: <code>read_orders</code>, <code>read_themes</code>, <code>write_themes</code></li>
-                        <li>Click the <strong>"Release"</strong> button in the top right</li>
-                        <li>Go to <strong>"Settings"</strong> to copy your <strong>Client ID</strong> and <strong>Secret</strong></li>
+                        <li><strong>CRITICAL:</strong> In <strong>"Configuration"</strong>, add this Redirect URL:<br/><code style={{ background: 'rgba(0,0,0,0.2)', padding: '2px 4px', borderRadius: '4px' }}>https://amksaswitchify.com/api/shopify/callback</code></li>
+                        <li>Click <strong>"Release"</strong> in the top right</li>
+                        <li>In <strong>"Settings"</strong>, copy your <strong>Client ID</strong> and <strong>Secret</strong></li>
                       </ol>
                     </div>
                     
