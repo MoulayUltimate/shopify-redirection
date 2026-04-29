@@ -277,15 +277,21 @@ export async function installScript(storeId: string, appUrl: string) {
     const snippet = `${SCRIPT_MARKER_START}
 {% if template == 'product' %}
 <script>
+  console.log('Rotator: Checking status...');
   fetch('${appUrl}/api/active-store?uid=${userId}&t=' + Date.now())
     .then(function(r){return r.json()})
     .then(function(d){
       const curr = window.location.hostname;
+      console.log('Rotator: Current Host:', curr);
+      console.log('Rotator: Target Domain:', d.domain);
       if(d.domain && curr !== d.domain && curr !== d.internalDomain){
+        console.log('Rotator: Redirecting to', d.domain);
         window.location.href='https://'+d.domain+'/products/{{product.handle}}';
+      } else {
+        console.log('Rotator: Stay on current store (Match found or No limit hit)');
       }
     })
-    .catch(function(e){console.error('Rotator:',e)});
+    .catch(function(e){console.error('Rotator Error:',e)});
 </script>
 {% endif %}
 ${SCRIPT_MARKER_END}`;
