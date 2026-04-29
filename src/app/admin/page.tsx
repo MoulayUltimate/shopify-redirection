@@ -21,8 +21,24 @@ export default async function AdminMasterPage() {
     orderBy: { createdAt: 'desc' },
   });
 
+  // Fetch ALL registered team members
+  const allUsers = await prisma.user.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      _count: { select: { stores: true } },
+    },
+  });
+
   const totalRevenue = allStores.reduce((sum, s) => sum + s.currentRevenue, 0);
   const liveCount = allStores.filter(s => s.isActive && s.currentRevenue < s.revenueLimit).length;
+
+  const dateFmt = new Intl.DateTimeFormat('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
 
   return (
     <div className="bg-background min-h-screen">
@@ -48,7 +64,11 @@ export default async function AdminMasterPage() {
           <p className="text-body-md text-on-surface-variant">Every store across every user account.</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-gutter">
+          <div className="bg-white border border-outline-variant rounded-xl p-lg shadow-sm">
+            <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">Team Members</span>
+            <p className="font-stats-lg text-stats-lg text-on-surface mt-xs">{allUsers.length}</p>
+          </div>
           <div className="bg-white border border-outline-variant rounded-xl p-lg shadow-sm">
             <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">Total Stores</span>
             <p className="font-stats-lg text-stats-lg text-on-surface mt-xs">{allStores.length}</p>
@@ -61,6 +81,74 @@ export default async function AdminMasterPage() {
             <span className="font-label-caps text-label-caps text-on-surface-variant uppercase">Total Revenue</span>
             <p className="font-stats-lg text-stats-lg text-on-surface mt-xs">${totalRevenue.toFixed(2)}</p>
           </div>
+        </div>
+
+        {/* Team Members */}
+        <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+          <div className="px-lg py-md border-b border-slate-100 bg-slate-50/30 flex items-center gap-2">
+            <span className="material-symbols-outlined text-secondary text-[20px]">group</span>
+            <h3 className="font-h2 text-[18px] text-on-surface">Team Members</h3>
+            <span className="ml-auto text-[11px] text-slate-500 font-semibold">{allUsers.length} registered</span>
+          </div>
+
+          {allUsers.length === 0 ? (
+            <div className="p-xl text-center">
+              <p className="text-body-md text-on-surface font-semibold">No team members yet</p>
+              <p className="text-body-sm text-on-surface-variant mt-xs">Nobody has signed up yet.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/50">
+                    <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 uppercase">Member</th>
+                    <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 uppercase">Email</th>
+                    <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 uppercase">Stores</th>
+                    <th className="px-lg py-4 font-label-caps text-label-caps text-slate-500 border-b border-slate-100 uppercase">Registered</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {allUsers.map((u: any) => {
+                    const isOwner = u.email === ADMIN_EMAIL;
+                    const initial = (u.name || u.email || '?').charAt(0).toUpperCase();
+                    return (
+                      <tr key={u.id} className="hover:bg-blue-50/30 transition-colors">
+                        <td className="px-lg py-4">
+                          <div className="flex items-center gap-3">
+                            <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm ${isOwner ? 'bg-amber-100 text-amber-700 border border-amber-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}`}>
+                              {initial}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <p className="font-semibold text-slate-900 text-sm">{u.name || 'Unnamed'}</p>
+                                {isOwner && (
+                                  <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">Owner</span>
+                                )}
+                              </div>
+                              <p className="text-[10px] text-slate-400 font-mono">ID: {u.id}</p>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-lg py-4">
+                          <p className="font-mono text-[12px] text-slate-700">{u.email}</p>
+                        </td>
+                        <td className="px-lg py-4">
+                          <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-slate-50 border border-slate-100 text-slate-700">
+                            <span className="material-symbols-outlined text-[14px]">storefront</span>
+                            <span className="text-[12px] font-semibold">{u._count.stores}</span>
+                          </span>
+                        </td>
+                        <td className="px-lg py-4">
+                          <p className="text-[12px] text-slate-700 font-medium">{dateFmt.format(new Date(u.createdAt))}</p>
+                          <p className="text-[10px] text-slate-400">{new Date(u.createdAt).toISOString().split('T')[0]}</p>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
 
         <div className="bg-white border border-outline-variant rounded-xl shadow-sm overflow-hidden">
