@@ -232,9 +232,22 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                               <a 
                                 href={`/api/shopify/auth?shop=${store.domain}&clientId=${store.clientId}&storeId=${store.id}`}
                                 className="btn btn-primary btn-sm"
-                                style={{ background: 'var(--yellow)', color: 'black' }}
+                                style={{ 
+                                  background: '#008060', 
+                                  color: 'white', 
+                                  display: 'flex', 
+                                  alignItems: 'center', 
+                                  gap: '0.5rem',
+                                  padding: '0.5rem 1rem',
+                                  textDecoration: 'none',
+                                  boxShadow: '0 2px 4px rgba(0,128,96,0.2)'
+                                }}
                               >
-                                🔗 Connect to Shopify
+                                <svg width="18" height="18" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M22.9 8.2l-3.3-1.1c-.2-.1-.5-.1-.7.1L15 10.1l-3.9-2.9c-.2-.1-.5-.1-.7.1L7.1 8.2c-.3.1-.5.4-.5.7v12.2c0 .3.2.6.5.7l1.4.5 3.3-2.5 3.3 2.5 1.4-.5c.3-.1.5-.4.5-.7V8.9c0-.3-.2-.6-.5-.7z" fill="white"/>
+                                  <path d="M15 27.5c6.9 0 12.5-5.6 12.5-12.5S21.9 2.5 15 2.5 2.5 8.1 2.5 15s5.6 12.5 12.5 12.5zm0-23.5c6.1 0 11 4.9 11 11s-4.9 11-11 11-11-4.9-11-11 4.9-11 11-11z" fill="white"/>
+                                </svg>
+                                Connect to Shopify
                               </a>
                             ) : (
                               <>
