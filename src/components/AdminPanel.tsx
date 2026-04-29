@@ -208,23 +208,6 @@ export default function AdminPanel({ stores, appUrl }: { stores: any[]; appUrl: 
                           <div className="store-name">{store.name}</div>
                           <div className="store-domain">{store.domain}</div>
                         </td>
-                        <td>
-                          <div className="revenue-bar-wrap">
-                            <div className="revenue-text" style={{ color: limitHit ? 'var(--red)' : 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                              ${store.currentRevenue.toFixed(2)} / $
-                              <input 
-                                type="number" 
-                                defaultValue={store.revenueLimit} 
-                                onBlur={(e) => handleUpdateLimit(store.id, e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleUpdateLimit(store.id, (e.target as HTMLInputElement).value)}
-                                className="limit-input"
-                                title="Click to edit limit"
-                              />
-                              <span style={{ fontSize: '0.7rem', opacity: 0.5 }}>✏️</span>
-                            </div>
-                            <div className="revenue-bar">
-                              <div
-                                  className="revenue-fill"
                         <td style={{ minWidth: '180px' }}>
                           <div className="revenue-container">
                             <div className="revenue-header">
